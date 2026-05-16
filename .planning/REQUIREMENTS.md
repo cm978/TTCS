@@ -182,7 +182,7 @@
 | QUAL-03 | Phase 6 | Pending |
 
 **覆盖率:**
-- v1 需求: 54 total
+- v1 需求: 55 total
 - 已映射到阶段: 54
 - 未映射: 0
 
