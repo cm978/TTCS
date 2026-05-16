@@ -1,124 +1,124 @@
 # TTCS
 
-## What This Is
+## 项目说明
 
-TTCS (Team Task Collaboration System) is a web-based team task collaboration system for small software teams. For the current milestone, it is a course/demo-first MVP that proves a real delivery loop: daily standup visibility, personal execution queues, work logs, blocker reporting, evidence-gated task submission, and Owner/project-manager review.
+TTCS（Team Task Collaboration System，团队任务协作管理系统）是面向小型软件团队的 Web 任务协作系统。当前里程碑采用课程/演示优先的 MVP 定位，重点证明一条真实交付闭环：每日站会可见、个人行动队列、工作日志、阻塞上报、证据门禁提交验收，以及 Owner/项目经理人工 Review。
 
-It is not just a generic task board. The product should demonstrate why a task is considered complete by preserving work logs, document or code evidence, acceptance submissions, review decisions, rejection reasons, and immutable acceptance history.
+它不是普通任务看板。系统需要通过工作日志、文档或代码证据、验收提交、Review 决策、打回原因和不可覆盖的验收历史，说明一个任务为什么可以被认定为“已完成”。
 
-## Core Value
+## 核心价值
 
-Tasks can only become complete after traceable evidence and human acceptance prove the work is actually deliverable.
+只有当可追溯证据和人工验收共同证明工作可交付时，任务才能进入完成状态。
 
-## Requirements
+## 需求
 
-### Validated
+### 已验证
 
-(None yet - ship to validate)
+（暂无，交付后验证）
 
-### Active
+### 当前范围
 
-- [ ] Users can register, log in, maintain a basic profile, and access the system through JWT-authenticated sessions.
-- [ ] Teams can be created, members can be invited, and team/project roles can govern permissions.
-- [ ] Projects can be created with members, project roles, and default board columns: TODO, IN_PROGRESS, IN_REVIEW, REJECTED, DONE.
-- [ ] Project members can create, edit, soft-delete, assign, and track tasks with owners, participants, priorities, deadlines, subtasks, dependencies, and task types.
-- [ ] Tasks support multiple participants with a maximum of 5 participants per task while preserving a clear owner.
-- [ ] Members can record work logs with work content, hours, optional code reference fields, and blocker status.
-- [ ] Blockers are risk markers, not primary task status; unresolved blockers prevent acceptance submission and appear in standup/blocker reports.
-- [ ] Task completion uses a state machine from TODO to IN_PROGRESS to IN_REVIEW to DONE, with REJECTED as the review failure path and CLOSED for later archival.
-- [ ] General, document, and code tasks use different acceptance gates before submission.
-- [ ] General tasks require completed subtasks or an acceptance summary, at least one valid work log, no unresolved blocker, eligible submitter permission, and a summary of at least 10 characters.
-- [ ] Document tasks require the general gate plus at least one accessible document or attachment evidence item.
-- [ ] Code tasks require the general gate plus at least one Commit, PR/MR, or code review record; unresolved code-review comments must be zero when review records are used.
-- [ ] Participants can submit tasks for acceptance but cannot directly mark them complete.
-- [ ] Owners and project managers can approve, reject, or request more evidence for submitted tasks.
-- [ ] Acceptance submissions, gate snapshots, reviews, rejection reasons, and evidence references are audit records and must not be overwritten.
-- [ ] The personal workspace provides action queues for today's tasks, missing work logs, blocked tasks, tasks ready for acceptance submission, tasks awaiting my review, and rejected tasks.
-- [ ] Notifications and activity records cover task assignment, mentions, blocker updates, acceptance submission, approval, rejection, and evidence requests.
-- [ ] Reports provide project progress, task distribution, work-hour statistics, blocker reports, and basic acceptance statistics.
-- [ ] Document management supports upload, download, soft delete, metadata, access control, and linking documents as task evidence.
-- [ ] Code evidence supports manual or simulated Commit, PR/MR, and code-review records for MVP acceptance evidence.
-- [ ] The frontend uses Vue 3, TypeScript, Vite, Pinia, Vue Router, Axios, and Ant Design Vue.
-- [ ] The backend uses Python 3.10+, FastAPI, SQLAlchemy, MySQL 8.0+, Redis 7+, REST APIs, JWT, and WebSocket notifications.
-- [ ] The first implementation stays monolithic: one FastAPI backend, static frontend deployment, MySQL, Redis, and local or object-storage-compatible file storage.
+- [ ] 用户可以注册、登录、维护基础个人信息，并通过 JWT 认证会话访问系统。
+- [ ] 可以创建团队、邀请成员，并通过团队角色和项目角色管理权限。
+- [ ] 可以创建项目，配置项目成员、项目角色和默认看板列：TODO、IN_PROGRESS、IN_REVIEW、REJECTED、DONE。
+- [ ] 项目成员可以创建、编辑、软删除、分配和跟踪任务；任务包含 Owner、参与者、优先级、截止日期、子任务、依赖关系和任务类型。
+- [ ] 任务支持多人参与，每个任务最多 5 名参与者，同时保留明确 Owner。
+- [ ] 成员可以记录工作日志，包括工作内容、工时、可选代码引用字段和阻塞状态。
+- [ ] 阻塞是风险标记，不是主任务状态；存在未解除阻塞时禁止提交验收，并进入站会/阻塞报表。
+- [ ] 任务完成使用状态机：TODO -> IN_PROGRESS -> IN_REVIEW -> DONE；REJECTED 是 Review 未通过路径，CLOSED 用于后续归档。
+- [ ] 普通任务、文档任务、代码任务在提交验收前使用不同的验收门禁。
+- [ ] 普通任务需要满足：子任务全部完成或填写验收说明、至少一条有效工作日志、不存在未解除阻塞、提交人具备权限、验收说明不少于 10 个字符。
+- [ ] 文档任务需要满足普通任务门禁，并至少关联一个 Owner 或项目经理可访问的文档或附件证据。
+- [ ] 代码任务需要满足普通任务门禁，并至少关联一个 Commit、PR/MR 或代码审核记录；若使用代码审核记录，未解决评论数量必须为 0。
+- [ ] 任务参与者可以提交验收，但不能直接将任务标记为已完成。
+- [ ] Owner 和项目经理可以通过验收、打回任务或要求补充证据。
+- [ ] 验收提交、门禁快照、Review 记录、打回原因和证据引用都是审计记录，不得覆盖。
+- [ ] 个人工作台提供行动队列：今日待办、待写日志、阻塞中、待提交验收、待我验收、被打回任务。
+- [ ] 通知和活动记录覆盖任务分配、@提及、阻塞更新、提交验收、验收通过、打回和补充证据请求。
+- [ ] 报表提供项目进度、任务分布、工时统计、阻塞任务报告和基础验收统计。
+- [ ] 文档管理支持上传、下载、软删除、元数据、访问控制，以及将文档关联为任务证据。
+- [ ] 代码证据支持手工或模拟录入 Commit、PR/MR 和代码审核记录，用于 MVP 验收证据链。
+- [ ] 前端使用 Vue 3、TypeScript、Vite、Pinia、Vue Router、Axios 和 Ant Design Vue。
+- [ ] 后端使用 Python 3.10+、FastAPI、SQLAlchemy、MySQL 8.0+、Redis 7+、REST API、JWT 和 WebSocket 通知。
+- [ ] 首版保持单体后端：一个 FastAPI 应用、前端静态部署、MySQL、Redis，以及本地或对象存储兼容的文件存储。
 
-### Out of Scope
+### 暂不纳入
 
-- Real GitHub/GitLab webhook synchronization - deferred to phase 2; MVP may use manual or simulated code evidence.
-- Real AI/Agent code review calls - deferred to phase 2; AI/Agent review may be represented only by reserved interfaces or data structures.
-- Full rule engine for acceptance policies - deferred; MVP uses explicit hard-coded gate rules by task type.
-- External calendar synchronization, iCal import/export, and CalDAV/Google Calendar integration - deferred to phase 2.
-- Member homepage analytics and full member timeline - deferred to phase 2.
-- Document versioning, archive strategy, capacity management, and bulk organization - deferred to phase 2.
-- Multi-language UI - deferred; MVP is Chinese-first.
-- Mobile app - out of current scope; responsive web is sufficient for MVP.
-- CI/CD integration - deferred beyond the current MVP.
-- Microservice split - unnecessary for the demo/MVP goal and would slow delivery.
+- 真实 GitHub/GitLab Webhook 同步 - 延后到二期；MVP 可使用手工或模拟代码证据。
+- 真实 AI/Agent 代码评审调用 - 延后到二期；一期只保留接口或数据结构。
+- 完整验收规则引擎 - 延后；MVP 按任务类型使用明确的硬编码门禁规则。
+- 外部日历同步、iCal 导入导出、CalDAV/Google Calendar 集成 - 延后到二期。
+- 成员主页分析和完整成员时间线 - 延后到二期。
+- 文档版本管理、归档策略、容量管理和批量整理 - 延后到二期。
+- 多语言界面 - 延后；MVP 中文优先。
+- 移动端 App - 不在当前范围内；响应式 Web 足够支撑 MVP。
+- CI/CD 集成 - 延后到当前 MVP 之后。
+- 微服务拆分 - 对演示/MVP 目标不是必要项，并会拖慢交付。
 
-## Context
+## 背景
 
-The current source documents are:
+当前源文档包括：
 
-- `01-requirements/02-srs.md` V2.4, which defines the current requirements baseline and explicitly narrows the project to an MVP delivery loop before phase-2 expansion.
-- `02-design/01-task-acceptance-design.md`, which introduces the evidence gate plus human review completion model.
-- `02-design/02-high-level-design.md`, which defines the system architecture, module boundaries, core flows, data domains, API groups, and phase boundaries.
-- `02-design/03-low-level-design.md`, which details backend/frontend structure, enums, state machines, services, interfaces, and acceptance algorithms.
-- `01-requirements/05-change-request-001.md`, which adds work logs, multi-participant tasks, blocker reporting, and Git-field reservation.
-- `01-requirements/01-project-charter.md`, which originally excluded code repository integration from the current period; the current SRS resolves this by allowing only manual or simulated code evidence in MVP and deferring real Git integration.
+- `01-requirements/02-srs.md` V2.4：当前需求基线，并明确将项目收敛为“先证明 MVP 交付闭环，再扩展二期能力”。
+- `02-design/01-task-acceptance-design.md`：引入“证据门禁 + 人工 Review”的任务完成模型。
+- `02-design/02-high-level-design.md`：定义系统架构、模块边界、核心流程、数据领域、API 分组和一期/二期边界。
+- `02-design/03-low-level-design.md`：细化后端/前端结构、枚举、状态机、服务、接口和验收算法。
+- `01-requirements/05-change-request-001.md`：新增工作日志、多人参与任务、阻塞上报和 Git 字段预留。
+- `01-requirements/01-project-charter.md`：原本将代码仓库集成排除在本期范围外；当前 SRS 通过“一期仅支持手工或模拟代码证据，真实 Git 集成延后”来化解该冲突。
 
-The product is meant to support a realistic work rhythm:
+产品应支撑一条真实工作节奏：
 
-1. A member starts from the personal workspace action queue.
-2. They move tasks through the project board.
-3. They record work logs and blocker status.
-4. They attach or link delivery evidence.
-5. They submit the task for acceptance only after gate checks pass.
-6. The Owner or project manager reviews, approves, rejects, or requests more evidence.
-7. Reports and workspace queues expose delivery risk, blocker load, acceptance quality, and progress.
+1. 成员从个人工作台的行动队列开始。
+2. 成员在项目看板中推进任务。
+3. 成员记录工作日志和阻塞状态。
+4. 成员上传或关联交付证据。
+5. 只有门禁检查通过后，成员才能提交任务验收。
+6. Owner 或项目经理执行 Review，通过、打回或要求补充证据。
+7. 报表和工作台队列暴露交付风险、阻塞压力、验收质量和项目进度。
 
-## Constraints
+## 约束
 
-- **Scope**: Current milestone is demo-first MVP - prioritize a coherent acceptance workflow over broad platform completeness.
-- **Architecture**: Use a frontend/backend split with Vue 3 and FastAPI - this is fixed by the current SRS and design documents.
-- **Backend stack**: Python 3.10+, FastAPI, SQLAlchemy, MySQL 8.0+, Redis 7+ - maintain consistency with SRS V2.4.
-- **Frontend stack**: Vue 3.3+, TypeScript, Vite 5.x, Pinia, Vue Router 4.x, Axios, Ant Design Vue 4.x - maintain consistency with SRS V2.4.
-- **API style**: RESTful `/api/v1` JSON APIs plus WebSocket notifications.
-- **Authentication**: JWT bearer tokens with bcrypt password hashing.
-- **Storage**: MVP can use local compatible storage or object storage for files, but metadata and permissions must remain in the database.
-- **State integrity**: Task status changes, acceptance submission, review decisions, and evidence snapshots must be transactional where they affect completion state.
-- **Auditability**: Acceptance submission and review history must be append-only rather than overwritten.
-- **Permissions**: Completion authority belongs to Owner or project manager; automatic systems and participants cannot directly complete a task.
-- **Code evidence**: MVP code evidence is manual or simulated; do not implement real Git platform synchronization as a phase-1 dependency.
-- **Language**: MVP UI and documentation are Chinese-first.
+- **范围**：当前里程碑是演示优先 MVP，优先保证完整验收闭环，而不是追求平台功能广度。
+- **架构**：采用 Vue 3 + FastAPI 的前后端分离架构，这是当前 SRS 和设计文档的固定选择。
+- **后端技术栈**：Python 3.10+、FastAPI、SQLAlchemy、MySQL 8.0+、Redis 7+，保持与 SRS V2.4 一致。
+- **前端技术栈**：Vue 3.3+、TypeScript、Vite 5.x、Pinia、Vue Router 4.x、Axios、Ant Design Vue 4.x，保持与 SRS V2.4 一致。
+- **API 风格**：RESTful `/api/v1` JSON API，加 WebSocket 通知。
+- **认证**：JWT Bearer Token，密码使用 bcrypt 哈希。
+- **存储**：MVP 可使用本地兼容存储或对象存储保存文件，但元数据和权限必须留在数据库。
+- **状态一致性**：影响完成状态的任务状态变化、验收提交、Review 决策和证据快照必须保证事务一致性。
+- **审计性**：验收提交和 Review 历史只能追加，不能覆盖。
+- **权限**：完成权属于 Owner 或项目经理；自动系统和任务参与者不能直接完成任务。
+- **代码证据**：MVP 代码证据采用手工或模拟方式，不把真实 Git 平台同步作为一期依赖。
+- **语言**：MVP 界面和文档中文优先。
 
-## Key Decisions
+## 关键决策
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Treat TTCS as a demo-first MVP rather than a full platform build | The current documents emphasize proving the delivery loop first and deferring platform expansion | - Pending |
-| Make evidence-gated acceptance the core product value | This differentiates TTCS from a plain task board and creates a verifiable definition of done | - Pending |
-| Keep blockers as a risk marker instead of a primary task state | Avoids state-machine bloat while preserving blocker reporting and acceptance gating | - Pending |
-| Allow only manual or simulated code evidence in MVP | Reconciles the SRS code-evidence requirement with the charter's exclusion of real Git integration | - Pending |
-| Defer real AI/Agent review to phase 2 | The design says AI/Agent review is auxiliary and must not own final completion authority | - Pending |
-| Use a monolithic FastAPI backend for MVP | Faster delivery and simpler transaction boundaries suit the demo-first scope | - Pending |
-| Model phases as vertical MVP slices | Each phase should produce an end-to-end user-visible capability instead of disconnected technical layers | - Pending |
+| 决策 | 理由 | 结果 |
+|------|------|------|
+| 将 TTCS 视为演示优先 MVP，而不是完整平台建设 | 当前文档强调先证明交付闭环，再扩展平台能力 | 待验证 |
+| 将证据门禁验收作为核心产品价值 | 这能把 TTCS 和普通任务看板区分开，并提供可验证的完成定义 | 待验证 |
+| 将阻塞保留为风险标记，而不是主任务状态 | 避免状态机膨胀，同时保留阻塞报表和验收门禁能力 | 待验证 |
+| MVP 只允许手工或模拟代码证据 | 调和 SRS 的代码证据要求与项目章程中“本期不集成真实代码仓库”的边界 | 待验证 |
+| 真实 AI/Agent 评审延后到二期 | 设计文档明确 AI/Agent 评审只是辅助证据，不能拥有最终完成权 | 待验证 |
+| MVP 使用单体 FastAPI 后端 | 更利于快速交付，也更容易保证任务、验收和证据事务边界 | 待验证 |
+| 阶段规划采用纵向 MVP 切片 | 每个阶段应交付端到端用户可见能力，而不是割裂的技术层 | 待验证 |
 
-## Evolution
+## 演进规则
 
-This document evolves at phase transitions and milestone boundaries.
+本文档会在阶段转换和里程碑边界持续演进。
 
-**After each phase transition** (via `$gsd-transition`):
-1. Requirements invalidated? -> Move to Out of Scope with reason
-2. Requirements validated? -> Move to Validated with phase reference
-3. New requirements emerged? -> Add to Active
-4. Decisions to log? -> Add to Key Decisions
-5. "What This Is" still accurate? -> Update if drifted
+**每次阶段转换后**（通过 `$gsd-transition`）：
+1. 需求失效？-> 移到“暂不纳入”，并说明原因
+2. 需求已验证？-> 移到“已验证”，并标注阶段来源
+3. 出现新需求？-> 加入“当前范围”
+4. 产生关键决策？-> 记录到“关键决策”
+5. “项目说明”是否仍准确？-> 如有偏移则更新
 
-**After each milestone** (via `$gsd-complete-milestone`):
-1. Full review of all sections
-2. Core Value check - still the right priority?
-3. Audit Out of Scope - reasons still valid?
-4. Update Context with current state
+**每个里程碑结束后**（通过 `$gsd-complete-milestone`）：
+1. 全量复核各章节
+2. 检查核心价值是否仍是正确优先级
+3. 审计“暂不纳入”项及其理由是否仍成立
+4. 用当前状态更新“背景”
 
 ---
-*Last updated: 2026-05-17 after initialization*
+*最后更新：2026-05-17，初始化后*
