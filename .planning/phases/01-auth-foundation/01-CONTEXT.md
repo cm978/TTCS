@@ -54,10 +54,22 @@ This phase does not implement teams, projects, tasks, work logs, acceptance gate
 - **D-23:** The content area should remain Phase 1 scoped: show a protected home placeholder or foundation page, not a real personal workspace.
 - **D-24:** Do not implement Phase 5 workspace queues or dashboard metrics in Phase 1.
 
+### UI/UX Pro Max 设计规范
+
+- **D-25:** Frontend design must follow `ui-ux-pro-max` skill principles, especially accessibility, interaction feedback, performance, responsive layout, semantic color, form feedback, and navigation clarity.
+- **D-26:** Use `design-system/MASTER.md` as the project-level visual source of truth for Phase 1 frontend work.
+- **D-27:** The frontend should feel more visually polished than a default admin template: use a modern operational SaaS cockpit style with refined surfaces, semantic status accents, clear hierarchy, and purposeful motion.
+- **D-28:** Do not use emoji as structural icons. Use a consistent vector icon family such as `lucide-vue-next` if icons are needed.
+- **D-29:** Do not use decorative gradient orbs, bokeh blobs, fake dashboard data, or marketing-style hero composition in the app shell.
+- **D-30:** Ant Design Vue may be used for speed and consistency, but components should be themed/wrapped with TTCS tokens so the UI does not look like an unstyled Ant Design default.
+- **D-31:** Phase 1 auth screens should feel branded and product-specific, but must not imply teams/projects/tasks are implemented.
+- **D-32:** Every auth form must include visible labels, inline errors, loading/disabled submit states, accessible focus states, and keyboard-friendly controls.
+
 ### the agent's Discretion
 
 - Token storage is intentionally left to the planner/implementation phase, with the requirement that the choice be explained.
 - Exact command names, package manager choice, and backend/frontend test tooling may be selected by the planner as long as they preserve the locked stack and local startup clarity.
+- Fine visual details such as exact spacing tokens, icon choices, and auth page composition may be selected by the planner/implementation as long as they follow `design-system/MASTER.md` and do not expand Phase 1 scope.
 
 </decisions>
 
@@ -73,6 +85,8 @@ This phase does not implement teams, projects, tasks, work logs, acceptance gate
 - `.planning/ROADMAP.md` — Phase 1 goal, success criteria, and explicit non-goals.
 - `.planning/STATE.md` — Current project state and workflow settings.
 - `.planning/config.json` — GSD workflow configuration.
+- `design-system/MASTER.md` — TTCS frontend visual system derived from `ui-ux-pro-max`; MUST read before frontend planning or implementation.
+- `/Users/moon/.codex/skills/ui-ux-pro-max/SKILL.md` — UI/UX Pro Max source guidance. Note: the installed `scripts` and `data` entries are pointer files whose target directory was not available in this environment, so downstream agents should rely on `design-system/MASTER.md` plus the SKILL.md rules unless the script install is repaired.
 
 ### Source Requirements and Design
 
@@ -89,12 +103,14 @@ This phase does not implement teams, projects, tasks, work logs, acceptance gate
 ### Reusable Assets
 
 - None yet. The repository currently contains requirements/design/planning documents, not application source code.
+- `design-system/MASTER.md` is a reusable project design asset for frontend planning and implementation.
 
 ### Established Patterns
 
 - Planning documents establish `backend/` and `frontend/` as the expected source layout.
 - The architecture is frontend/backend split with FastAPI, Vue 3, MySQL, Redis, REST `/api/v1`, JWT, and WebSocket capability reserved for later notifications.
 - Phase structure is vertical MVP slicing; Phase 1 should create foundations that later phases extend without implementing their business features early.
+- UI standards now prioritize accessibility, visible form labels, semantic tokens, consistent vector icons, meaningful loading/error states, 44px touch targets, and responsive app-shell layout.
 
 ### Integration Points
 
@@ -110,6 +126,7 @@ This phase does not implement teams, projects, tasks, work logs, acceptance gate
 - The login/register flow should feel like a real TTCS app, not a throwaway test page.
 - The protected post-login page should demonstrate that authentication and layout are working, while avoiding Phase 5 dashboard/workspace functionality.
 - Seed data is for one demo user only; later business demo data belongs to later phases.
+- The visual direction should be polished operational SaaS, with refined panels, status accents, and purposeful motion rather than plain scaffold pages.
 
 </specifics>
 

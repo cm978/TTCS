@@ -13,7 +13,19 @@ Technology stack not yet documented. Will populate after codebase mapping or fir
 <!-- GSD:conventions-start source:CONVENTIONS.md -->
 ## Conventions
 
-Conventions not yet established. Will populate as patterns emerge during development.
+### UI/UX
+
+Frontend work must follow `design-system/MASTER.md`, which adapts the `ui-ux-pro-max` skill for TTCS.
+
+Key rules:
+- Use a polished operational SaaS cockpit style, not a generic admin template.
+- Prioritize accessibility: visible labels, focus states, 4.5:1 text contrast, keyboard navigation, and aria labels for icon-only buttons.
+- Use semantic color/theme tokens instead of raw hex values scattered in components.
+- Use vector icons from one consistent family; do not use emoji as structural UI icons.
+- Keep touch/click targets at least 44px where practical.
+- Provide loading, disabled, error, success, hover, focus, and pressed states for controls.
+- Respect responsive layout rules and avoid horizontal mobile scroll.
+- Do not fake Phase 2/3/5 data in Phase 1 UI.
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->

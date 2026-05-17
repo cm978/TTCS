@@ -5,7 +5,7 @@
 
 **Date:** 2026-05-17
 **Phase:** 1-应用基础与认证骨架
-**Areas discussed:** 认证页面与接口边界, JWT 会话策略, 工程脚手架形态, 开发与演示数据, 前端首屏形态
+**Areas discussed:** 认证页面与接口边界, JWT 会话策略, 工程脚手架形态, 开发与演示数据, 前端首屏形态, UI/UX Pro Max 设计规范
 
 ---
 
@@ -83,6 +83,19 @@
 
 - Token 存储方式由 planner/implementation 在 `localStorage` 与 `httpOnly` cookie 等方案中选择，并说明取舍。
 - 具体启动命令、包管理器和测试工具由 planner 决定，但必须符合锁定技术栈和本地启动清晰性。
+- 具体视觉细节可由 planner/implementation 决定，但必须遵循 `design-system/MASTER.md` 和 `ui-ux-pro-max` 的可访问性、交互、响应式、语义色彩、动效和表单反馈规范。
+
+---
+
+## UI/UX Pro Max 设计规范
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| 接入项目设计系统 | 将 `ui-ux-pro-max` 规范固化为项目级 `design-system/MASTER.md`，后续前端规划/实现必须读取。 | ✓ |
+| 只口头提醒 | 不新增设计系统文件，只在对话中提醒后续实现注意 UI。 | |
+
+**User's choice:** 用户要求“前端设计遵循该 skill 开发规范，设计更有视觉效果的前端”。  
+**Notes:** 已将视觉规范作为 Phase 1 上下文补充：现代运营型 SaaS cockpit、可访问性优先、Ant Design Vue 需项目化主题包装、禁止 emoji 结构图标、禁止假 dashboard 数据和营销式首屏。
 
 ## Deferred Ideas
 
