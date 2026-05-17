@@ -19,7 +19,7 @@
 
 ### Phase 1: 应用基础与认证骨架
 
-**Goal:** 搭建 TTCS 可运行的前后端基础，并交付最小认证闭环。  
+**Goal:** As a TTCS user, I want to register, log in, recover my session after refresh, view a protected app shell, and log out, so that I can trust the application foundation before team and task features are added.  
 **Mode:** mvp  
 **Requirements:** AUTH-01, AUTH-02, AUTH-03, AUTH-04, ARCH-01, ARCH-02, ARCH-03, ARCH-04  
 **UI hint:** yes
