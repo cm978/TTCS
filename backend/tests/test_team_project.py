@@ -21,6 +21,10 @@ def auth_headers(client, email: str, display_name: str = "User") -> dict[str, st
     return {"Authorization": f"Bearer {login.json()['access_token']}"}
 
 
+def current_user_id(client, headers: dict[str, str]) -> int:
+    return client.get("/api/v1/auth/me", headers=headers).json()["id"]
+
+
 def make_user(db_session, email: str, display_name: str = "User") -> User:
     user = User(email=email, display_name=display_name, hashed_password=hash_password("SecurePass123!"))
     db_session.add(user)
@@ -204,3 +208,77 @@ def test_team_api_blocks_non_admin_mutations_and_cancels_pending_invites(client)
     assert forbidden.status_code == 403
     assert cancelled.status_code == 200
     assert cancelled.json()["status"] == TeamInvitationStatus.CANCELLED.value
+
+
+def test_project_api_creates_board_with_persisted_columns(client):
+    owner_headers = auth_headers(client, "owner@example.com", "Owner")
+    member_headers = auth_headers(client, "member@example.com", "Member")
+    team_id = client.post("/api/v1/teams", json={"name": "Demo Team"}, headers=owner_headers).json()["id"]
+    invitation = client.post(
+        f"/api/v1/teams/{team_id}/invitations",
+        json={"email": "member@example.com", "role": TeamRole.TEAM_MEMBER.value},
+        headers=owner_headers,
+    )
+    client.post(f"/api/v1/teams/invitations/{invitation.json()['id']}/accept", headers=member_headers)
+
+    project = client.post(
+        f"/api/v1/teams/{team_id}/projects",
+        json={"name": "Launch Plan", "description": "Phase 2 board"},
+        headers=member_headers,
+    )
+    board = client.get(f"/api/v1/projects/{project.json()['id']}/board", headers=member_headers)
+
+    assert project.status_code == 201
+    assert board.status_code == 200
+    assert [column["status"] for column in board.json()["columns"]] == [
+        BoardColumnStatus.TODO.value,
+        BoardColumnStatus.IN_PROGRESS.value,
+        BoardColumnStatus.IN_REVIEW.value,
+        BoardColumnStatus.REJECTED.value,
+        BoardColumnStatus.DONE.value,
+    ]
+    assert board.json()["members"][0]["role"] == ProjectRole.PROJECT_MANAGER.value
+
+
+def test_project_api_preserves_team_admin_view_only_boundary(client):
+    admin_headers = auth_headers(client, "admin@example.com", "Admin")
+    manager_headers = auth_headers(client, "manager@example.com", "Manager")
+    team_id = client.post("/api/v1/teams", json={"name": "Demo Team"}, headers=admin_headers).json()["id"]
+    invitation = client.post(
+        f"/api/v1/teams/{team_id}/invitations",
+        json={"email": "manager@example.com", "role": TeamRole.TEAM_MEMBER.value},
+        headers=admin_headers,
+    )
+    client.post(f"/api/v1/teams/invitations/{invitation.json()['id']}/accept", headers=manager_headers)
+    project_id = client.post(
+        f"/api/v1/teams/{team_id}/projects",
+        json={"name": "Launch Plan"},
+        headers=manager_headers,
+    ).json()["id"]
+
+    visible = client.get(f"/api/v1/projects/{project_id}/board", headers=admin_headers)
+    forbidden = client.post(
+        f"/api/v1/projects/{project_id}/members",
+        json={"user_id": current_user_id(client, admin_headers), "role": ProjectRole.PROJECT_MEMBER.value},
+        headers=admin_headers,
+    )
+
+    assert visible.status_code == 200
+    assert forbidden.status_code == 403
+
+
+def test_project_api_requires_project_members_to_belong_to_team(client):
+    owner_headers = auth_headers(client, "owner@example.com", "Owner")
+    outsider_headers = auth_headers(client, "outsider@example.com", "Outsider")
+    team_id = client.post("/api/v1/teams", json={"name": "Demo Team"}, headers=owner_headers).json()["id"]
+    project_id = client.post(f"/api/v1/teams/{team_id}/projects", json={"name": "Launch Plan"}, headers=owner_headers).json()[
+        "id"
+    ]
+
+    response = client.post(
+        f"/api/v1/projects/{project_id}/members",
+        json={"user_id": current_user_id(client, outsider_headers), "role": ProjectRole.PROJECT_MEMBER.value},
+        headers=owner_headers,
+    )
+
+    assert response.status_code == 403
