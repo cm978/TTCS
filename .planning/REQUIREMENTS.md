@@ -16,12 +16,12 @@
 
 ### 团队与项目
 
-- [ ] **TEAM-01**: 用户可以创建团队，并自动成为团队管理员。
-- [ ] **TEAM-02**: 团队管理员可以邀请成员加入团队。
-- [ ] **TEAM-03**: 团队管理员可以管理团队成员角色和移除成员。
-- [ ] **PROJ-01**: 团队成员可以创建项目，并自动成为项目经理。
-- [ ] **PROJ-02**: 项目经理可以管理项目成员和项目角色。
-- [ ] **PROJ-03**: 新项目默认包含待办、进行中、待验收、打回修改、已完成看板列。
+- [x] **TEAM-01**: 用户可以创建团队，并自动成为团队管理员。
+- [x] **TEAM-02**: 团队管理员可以邀请成员加入团队。
+- [x] **TEAM-03**: 团队管理员可以管理团队成员角色和移除成员。
+- [x] **PROJ-01**: 团队成员可以创建项目，并自动成为项目经理。
+- [x] **PROJ-02**: 项目经理可以管理项目成员和项目角色。
+- [x] **PROJ-03**: 新项目默认包含待办、进行中、待验收、打回修改、已完成看板列。
 
 ### 任务与看板
 
@@ -129,12 +129,12 @@
 | AUTH-02 | Phase 1 | Pending |
 | AUTH-03 | Phase 1 | Pending |
 | AUTH-04 | Phase 1 | Pending |
-| TEAM-01 | Phase 2 | Pending |
-| TEAM-02 | Phase 2 | Pending |
-| TEAM-03 | Phase 2 | Pending |
-| PROJ-01 | Phase 2 | Pending |
-| PROJ-02 | Phase 2 | Pending |
-| PROJ-03 | Phase 2 | Pending |
+| TEAM-01 | Phase 2 | Complete |
+| TEAM-02 | Phase 2 | Complete |
+| TEAM-03 | Phase 2 | Complete |
+| PROJ-01 | Phase 2 | Complete |
+| PROJ-02 | Phase 2 | Complete |
+| PROJ-03 | Phase 2 | Complete |
 | TASK-01 | Phase 3 | Pending |
 | TASK-02 | Phase 3 | Pending |
 | TASK-03 | Phase 3 | Pending |
