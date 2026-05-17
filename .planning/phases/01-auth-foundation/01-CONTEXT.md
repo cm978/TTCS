@@ -86,7 +86,8 @@ This phase does not implement teams, projects, tasks, work logs, acceptance gate
 - `.planning/STATE.md` — Current project state and workflow settings.
 - `.planning/config.json` — GSD workflow configuration.
 - `design-system/MASTER.md` — TTCS frontend visual system derived from `ui-ux-pro-max`; MUST read before frontend planning or implementation.
-- `/Users/moon/.codex/skills/ui-ux-pro-max/SKILL.md` — UI/UX Pro Max source guidance. Note: the installed `scripts` and `data` entries are pointer files whose target directory was not available in this environment, so downstream agents should rely on `design-system/MASTER.md` plus the SKILL.md rules unless the script install is repaired.
+- `/Users/moon/.codex/skills/ui-ux-pro-max/SKILL.md` — UI/UX Pro Max source guidance.
+- `/Users/moon/.codex/skills/ui-ux-pro-max/scripts/search.py` — UI/UX Pro Max search script. Verified available on 2026-05-17 after repair; useful for future design validation.
 
 ### Source Requirements and Design
 
