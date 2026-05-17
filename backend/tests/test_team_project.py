@@ -11,6 +11,16 @@ from app.services.project_service import LastProjectManagerError, ProjectService
 from app.services.team_service import DuplicateInvitationError, LastTeamAdminError, TeamService
 
 
+def register_payload(email: str, display_name: str = "User") -> dict[str, str]:
+    return {"email": email, "password": "SecurePass123!", "display_name": display_name}
+
+
+def auth_headers(client, email: str, display_name: str = "User") -> dict[str, str]:
+    client.post("/api/v1/auth/register", json=register_payload(email, display_name))
+    login = client.post("/api/v1/auth/login", json={"email": email, "password": "SecurePass123!"})
+    return {"Authorization": f"Bearer {login.json()['access_token']}"}
+
+
 def make_user(db_session, email: str, display_name: str = "User") -> User:
     user = User(email=email, display_name=display_name, hashed_password=hash_password("SecurePass123!"))
     db_session.add(user)
@@ -132,3 +142,65 @@ def test_project_must_keep_one_manager(db_session):
 
     with pytest.raises(LastProjectManagerError):
         ProjectService(db_session).remove_project_member(owner, project.id, owner.id)
+
+
+def test_team_api_requires_authentication(client):
+    response = client.post("/api/v1/teams", json={"name": "Demo Team"})
+
+    assert response.status_code == 401
+
+
+def test_team_api_invitation_flow_matches_current_user_email(client):
+    owner_headers = auth_headers(client, "owner@example.com", "Owner")
+    member_headers = auth_headers(client, "member@example.com", "Member")
+
+    team_response = client.post(
+        "/api/v1/teams",
+        json={"name": "Demo Team", "description": "Phase 2"},
+        headers=owner_headers,
+    )
+    team_id = team_response.json()["id"]
+    invitation = client.post(
+        f"/api/v1/teams/{team_id}/invitations",
+        json={"email": "MEMBER@example.com", "role": TeamRole.TEAM_MEMBER.value},
+        headers=owner_headers,
+    )
+
+    mine = client.get("/api/v1/teams/my-invitations", headers=member_headers)
+    accepted = client.post(f"/api/v1/teams/invitations/{invitation.json()['id']}/accept", headers=member_headers)
+    members = client.get(f"/api/v1/teams/{team_id}/members", headers=owner_headers)
+
+    assert invitation.status_code == 201
+    assert mine.status_code == 200
+    assert mine.json()[0]["email"] == "member@example.com"
+    assert accepted.status_code == 200
+    assert accepted.json()["status"] == TeamInvitationStatus.ACCEPTED.value
+    assert members.json()[1]["role"] == TeamRole.TEAM_MEMBER.value
+
+
+def test_team_api_blocks_non_admin_mutations_and_cancels_pending_invites(client):
+    owner_headers = auth_headers(client, "owner@example.com", "Owner")
+    member_headers = auth_headers(client, "member@example.com", "Member")
+    team_id = client.post("/api/v1/teams", json={"name": "Demo Team"}, headers=owner_headers).json()["id"]
+    member_invitation = client.post(
+        f"/api/v1/teams/{team_id}/invitations",
+        json={"email": "member@example.com", "role": TeamRole.TEAM_MEMBER.value},
+        headers=owner_headers,
+    )
+    client.post(f"/api/v1/teams/invitations/{member_invitation.json()['id']}/accept", headers=member_headers)
+    pending = client.post(
+        f"/api/v1/teams/{team_id}/invitations",
+        json={"email": "later@example.com", "role": TeamRole.TEAM_MEMBER.value},
+        headers=owner_headers,
+    )
+
+    forbidden = client.post(
+        f"/api/v1/teams/{team_id}/invitations",
+        json={"email": "blocked@example.com", "role": TeamRole.TEAM_MEMBER.value},
+        headers=member_headers,
+    )
+    cancelled = client.post(f"/api/v1/teams/invitations/{pending.json()['id']}/cancel", headers=owner_headers)
+
+    assert forbidden.status_code == 403
+    assert cancelled.status_code == 200
+    assert cancelled.json()["status"] == TeamInvitationStatus.CANCELLED.value
