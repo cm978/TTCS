@@ -67,7 +67,12 @@
           <section class="panel">
             <div class="section-heading">
               <h2>项目</h2>
-              <span>{{ visibleProjects.length }} 个项目</span>
+              <div class="heading-actions">
+                <span>{{ visibleProjects.length }} 个项目</span>
+                <a-button size="small" type="primary" :disabled="!teamStore.selectedTeamId" @click="showCreateProject = true">
+                  创建项目
+                </a-button>
+              </div>
             </div>
             <a-empty v-if="visibleProjects.length === 0" description="当前团队还没有项目。" />
             <div v-else class="project-list">
@@ -85,28 +90,31 @@
         </div>
       </template>
 
-      <a-modal v-model:open="showCreateTeam" title="创建团队" :footer="null">
-        <a-form layout="vertical" @finish="handleCreateTeam">
-          <a-form-item label="团队名称" name="name" extra="2-50 个字符，团队名称需唯一" required>
-            <a-input v-model:value="teamForm.name" />
-          </a-form-item>
-          <a-form-item label="团队描述" name="description" extra="最多 500 个字符">
-            <a-textarea v-model:value="teamForm.description" :rows="3" />
-          </a-form-item>
-          <div class="modal-actions">
-            <a-button @click="showCreateTeam = false">取消</a-button>
-            <a-button type="primary" html-type="submit" :loading="teamStore.loading">创建团队</a-button>
-          </div>
-        </a-form>
-      </a-modal>
+      <CreateTeamModal
+        v-model:open="showCreateTeam"
+        :loading="teamStore.loading"
+        :error="teamStore.error"
+        :created="teamCreated"
+        @submit="handleCreateTeam"
+      />
+      <CreateProjectModal
+        v-model:open="showCreateProject"
+        :loading="projectStore.loading"
+        :error="projectStore.error"
+        :created="projectCreated"
+        @submit="handleCreateProject"
+      />
     </section>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { FolderKanban, Plus, UsersRound } from "lucide-vue-next";
-import { computed, h, onMounted, reactive, ref } from "vue";
+import { computed, h, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
+import CreateProjectModal from "../components/project/CreateProjectModal.vue";
+import CreateTeamModal from "../components/team/CreateTeamModal.vue";
 import AppLayout from "../layouts/AppLayout.vue";
 import { useProjectStore } from "../stores/project";
 import { useTeamStore } from "../stores/team";
@@ -114,8 +122,11 @@ import type { TeamRole } from "../types/team";
 
 const teamStore = useTeamStore();
 const projectStore = useProjectStore();
+const router = useRouter();
 const showCreateTeam = ref(false);
-const teamForm = reactive({ name: "", description: "" });
+const showCreateProject = ref(false);
+const teamCreated = ref(false);
+const projectCreated = ref(false);
 
 const visibleProjects = computed(() => {
   if (!teamStore.selectedTeamId) {
@@ -138,12 +149,21 @@ async function selectTeam(teamId: number) {
   await projectStore.loadProjects(teamId);
 }
 
-async function handleCreateTeam() {
-  const team = await teamStore.createTeam({ name: teamForm.name, description: teamForm.description || null });
-  teamForm.name = "";
-  teamForm.description = "";
+async function handleCreateTeam(payload: { name: string; description?: string | null }) {
+  const team = await teamStore.createTeam(payload);
+  teamCreated.value = true;
   showCreateTeam.value = false;
   await selectTeam(team.id);
+}
+
+async function handleCreateProject(payload: { name: string; description?: string | null; start_date?: string | null; end_date?: string | null }) {
+  if (!teamStore.selectedTeamId) {
+    return;
+  }
+  const project = await projectStore.createProject(teamStore.selectedTeamId, payload);
+  projectCreated.value = true;
+  showCreateProject.value = false;
+  await router.push({ name: "project-board", params: { projectId: project.id } });
 }
 
 async function handleAcceptInvitation(invitationId: number) {
@@ -292,10 +312,11 @@ onMounted(() => {
   color: var(--color-primary);
 }
 
-.modal-actions {
+.heading-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 900px) {
