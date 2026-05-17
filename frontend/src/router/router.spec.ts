@@ -36,7 +36,6 @@ describe("router guards", () => {
 
     await router.push("/app");
 
-    expect(router.currentRoute.value.name).toBe("foundation");
+    expect(router.currentRoute.value.name).toBe("team-project-start");
   });
 });
-

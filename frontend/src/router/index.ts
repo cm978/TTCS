@@ -2,9 +2,9 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import { authTokenKey } from "../api/client";
 import { useAuthStore } from "../stores/auth";
-import FoundationHomeView from "../views/FoundationHomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import RegisterView from "../views/RegisterView.vue";
+import TeamProjectStartView from "../views/TeamProjectStartView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -12,7 +12,7 @@ const router = createRouter({
     { path: "/", redirect: "/app" },
     { path: "/login", name: "login", component: LoginView, meta: { public: true } },
     { path: "/register", name: "register", component: RegisterView, meta: { public: true } },
-    { path: "/app", name: "foundation", component: FoundationHomeView, meta: { requiresAuth: true } },
+    { path: "/app", name: "team-project-start", component: TeamProjectStartView, meta: { requiresAuth: true } },
     { path: "/:pathMatch(.*)*", redirect: "/app" }
   ]
 });
@@ -28,7 +28,7 @@ router.beforeEach(async (to) => {
     return { name: "login", query: { redirect: to.fullPath } };
   }
   if (to.meta.public && auth.isAuthenticated) {
-    return { name: "foundation" };
+    return { name: "team-project-start" };
   }
   return true;
 });
