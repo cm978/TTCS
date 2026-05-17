@@ -38,4 +38,21 @@ describe("router guards", () => {
 
     expect(router.currentRoute.value.name).toBe("team-project-start");
   });
+
+  it("protects team member and project board deep links", async () => {
+    await router.push("/teams/123/members");
+    expect(router.currentRoute.value.name).toBe("login");
+
+    window.localStorage.setItem(authTokenKey, "jwt-token");
+    vi.mocked(getCurrentUser).mockResolvedValue({
+      id: 1,
+      email: "moon@example.com",
+      display_name: "Moon",
+      is_active: true,
+      created_at: "2026-05-17T00:00:00Z"
+    });
+
+    await router.push("/projects/123/board");
+    expect(router.currentRoute.value.name).toBe("project-board");
+  });
 });

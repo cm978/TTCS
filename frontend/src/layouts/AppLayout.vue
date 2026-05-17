@@ -6,10 +6,31 @@
         <span>TTCS</span>
       </div>
       <nav class="nav-list" aria-label="主导航">
-        <RouterLink class="nav-item nav-item--active" to="/app">
+        <RouterLink class="nav-item" active-class="nav-item--active" to="/app">
           <LayoutDashboard :size="18" aria-hidden="true" />
-          <span>认证基础</span>
+          <span>团队与项目</span>
         </RouterLink>
+        <RouterLink
+          v-if="teamMembersTarget"
+          class="nav-item"
+          active-class="nav-item--active"
+          :to="teamMembersTarget"
+        >
+          <UsersRound :size="18" aria-hidden="true" />
+          <span>团队成员</span>
+        </RouterLink>
+        <div v-else class="nav-item nav-item--disabled" aria-disabled="true">
+          <UsersRound :size="18" aria-hidden="true" />
+          <span>团队成员</span>
+        </div>
+        <RouterLink v-if="boardTarget" class="nav-item" active-class="nav-item--active" :to="boardTarget">
+          <FolderKanban :size="18" aria-hidden="true" />
+          <span>项目看板</span>
+        </RouterLink>
+        <div v-else class="nav-item nav-item--disabled" aria-disabled="true">
+          <FolderKanban :size="18" aria-hidden="true" />
+          <span>项目看板</span>
+        </div>
       </nav>
     </a-layout-sider>
 
@@ -34,15 +55,26 @@
 </template>
 
 <script setup lang="ts">
-import { CircleUserRound, LayoutDashboard, LogOut, ShieldCheck } from "lucide-vue-next";
+import { CircleUserRound, FolderKanban, LayoutDashboard, LogOut, ShieldCheck, UsersRound } from "lucide-vue-next";
 import { computed, h } from "vue";
 import { useRouter } from "vue-router";
 
 import { useAuthStore } from "../stores/auth";
+import { useProjectStore } from "../stores/project";
+import { useTeamStore } from "../stores/team";
 
 const auth = useAuthStore();
+const teamStore = useTeamStore();
+const projectStore = useProjectStore();
 const router = useRouter();
 const userLabel = computed(() => auth.user?.display_name || auth.user?.email || "未登录");
+const teamMembersTarget = computed(() =>
+  teamStore.selectedTeamId ? { name: "team-members", params: { teamId: teamStore.selectedTeamId } } : null
+);
+const boardTarget = computed(() => {
+  const projectId = projectStore.activeBoard?.project.id ?? projectStore.projects[0]?.id;
+  return projectId ? { name: "project-board", params: { projectId } } : null;
+});
 
 function handleLogout() {
   auth.logout();
@@ -92,6 +124,11 @@ function handleLogout() {
 .nav-item--active {
   background: rgba(37, 99, 235, 0.22);
   color: #ffffff;
+}
+
+.nav-item--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .app-shell__header {
@@ -151,4 +188,3 @@ function handleLogout() {
   }
 }
 </style>
-
