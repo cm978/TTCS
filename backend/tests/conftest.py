@@ -18,7 +18,7 @@ from sqlalchemy.pool import StaticPool
 from app.db.base import Base
 from app.deps import get_db
 from app.main import create_app
-from app.models.user import User  # noqa: F401
+from app.models import BoardColumn, Project, ProjectMember, Team, TeamInvitation, TeamMember, User  # noqa: F401
 
 
 @pytest.fixture()
@@ -45,4 +45,3 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
-
