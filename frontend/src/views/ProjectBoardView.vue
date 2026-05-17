@@ -20,6 +20,16 @@
         <div class="board-scroll" aria-label="项目基础看板">
           <BoardColumn v-for="column in orderedColumns" :key="column.id" :column="column" />
         </div>
+
+        <ProjectMemberDrawer
+          v-model:open="memberDrawerOpen"
+          :members="board.members"
+          :team-members="teamMembers"
+          :current-user-id="auth.user?.id ?? null"
+          @add="handleAddMember"
+          @role-change="handleRoleChange"
+          @remove="handleRemoveMember"
+        />
       </template>
     </section>
   </AppLayout>
@@ -31,12 +41,18 @@ import { computed, h, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import BoardColumn from "../components/project/BoardColumn.vue";
+import ProjectMemberDrawer from "../components/project/ProjectMemberDrawer.vue";
 import AppLayout from "../layouts/AppLayout.vue";
+import { useAuthStore } from "../stores/auth";
 import { useProjectStore } from "../stores/project";
+import { useTeamStore } from "../stores/team";
 import type { BoardColumnStatus } from "../types/project";
+import type { ProjectMember, ProjectRole } from "../types/project";
 
 const route = useRoute();
+const auth = useAuthStore();
 const projectStore = useProjectStore();
+const teamStore = useTeamStore();
 const memberDrawerOpen = ref(false);
 const projectId = computed(() => Number(route.params.projectId));
 const board = computed(() => projectStore.activeBoard);
@@ -47,9 +63,30 @@ const orderedColumns = computed(() =>
 const managerCount = computed(
   () => board.value?.members.filter((member) => member.role === "PROJECT_MANAGER").length ?? 0
 );
+const teamMembers = computed(() => (board.value ? teamStore.membersByTeam[board.value.project.team_id] ?? [] : []));
 
 async function loadBoard() {
+  const loaded = await projectStore.loadBoard(projectId.value);
+  await teamStore.loadTeamMembers(loaded.project.team_id);
+}
+
+async function refreshBoard() {
   await projectStore.loadBoard(projectId.value);
+}
+
+async function handleAddMember(userId: number, role: ProjectRole) {
+  await projectStore.addMember(projectId.value, { user_id: userId, role });
+  await refreshBoard();
+}
+
+async function handleRoleChange(member: ProjectMember, role: ProjectRole) {
+  await projectStore.updateMemberRole(projectId.value, member.user.id, { role });
+  await refreshBoard();
+}
+
+async function handleRemoveMember(member: ProjectMember) {
+  await projectStore.removeMember(projectId.value, member.user.id);
+  await refreshBoard();
 }
 
 onMounted(() => {
