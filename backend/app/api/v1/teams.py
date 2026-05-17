@@ -19,6 +19,7 @@ from app.services.team_service import (
     DuplicateTeamError,
     InvalidRoleError,
     InvitationUnavailableError,
+    LastProjectManagerInTeamError,
     LastTeamAdminError,
     TeamLimitExceededError,
     TeamService,
@@ -47,7 +48,10 @@ def _team_error(exc: ValueError) -> HTTPException:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     if isinstance(exc, (DuplicateTeamError, DuplicateInvitationError)):
         return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
-    if isinstance(exc, (InvalidRoleError, InvitationUnavailableError, LastTeamAdminError, TeamLimitExceededError)):
+    if isinstance(
+        exc,
+        (InvalidRoleError, InvitationUnavailableError, LastProjectManagerInTeamError, LastTeamAdminError, TeamLimitExceededError),
+    ):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Team operation failed")
 

@@ -8,7 +8,7 @@ from app.models.team import TeamInvitationStatus, TeamMember, TeamRole
 from app.models.user import User
 from app.services.permissions import PermissionDeniedError
 from app.services.project_service import LastProjectManagerError, ProjectService
-from app.services.team_service import DuplicateInvitationError, LastTeamAdminError, TeamService
+from app.services.team_service import DuplicateInvitationError, LastProjectManagerInTeamError, LastTeamAdminError, TeamService
 
 
 def register_payload(email: str, display_name: str = "User") -> dict[str, str]:
@@ -146,6 +146,19 @@ def test_project_must_keep_one_manager(db_session):
 
     with pytest.raises(LastProjectManagerError):
         ProjectService(db_session).remove_project_member(owner, project.id, owner.id)
+
+
+def test_team_member_removal_cannot_orphan_project_manager(db_session):
+    owner = make_user(db_session, "owner@example.com")
+    member = make_user(db_session, "member@example.com")
+    team_service = TeamService(db_session)
+    team = team_service.create_team(owner, payload(name="Demo Team", description=None))
+    invitation = team_service.invite_member(owner, team.id, payload(email=member.email, role=TeamRole.TEAM_MEMBER.value))
+    team_service.accept_invitation(member, invitation.id)
+    ProjectService(db_session).create_project(member, team.id, payload(name="Launch", description=None))
+
+    with pytest.raises(LastProjectManagerInTeamError):
+        team_service.remove_member(owner, team.id, member.id)
 
 
 def test_team_api_requires_authentication(client):

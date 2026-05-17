@@ -4,7 +4,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models.project import Project, ProjectMember
+from app.models.project import Project, ProjectMember, ProjectRole
 from app.models.team import Team, TeamInvitation, TeamInvitationStatus, TeamMember, TeamRole
 from app.models.user import User
 from app.services.permissions import DomainNotFoundError, PermissionDeniedError, ensure_team_admin, ensure_team_member
@@ -31,6 +31,10 @@ class InvitationUnavailableError(ValueError):
 
 
 class LastTeamAdminError(ValueError):
+    pass
+
+
+class LastProjectManagerInTeamError(ValueError):
     pass
 
 
@@ -215,9 +219,26 @@ class TeamService:
             self._ensure_not_last_admin(team_id, user_id)
 
         project_ids = select(Project.id).where(Project.team_id == team_id)
-        for project_member in self.db.scalars(
-            select(ProjectMember).where(ProjectMember.user_id == user_id, ProjectMember.project_id.in_(project_ids))
-        ):
+        project_memberships = list(
+            self.db.scalars(
+                select(ProjectMember).where(ProjectMember.user_id == user_id, ProjectMember.project_id.in_(project_ids))
+            )
+        )
+        for project_member in project_memberships:
+            if project_member.role == ProjectRole.PROJECT_MANAGER.value:
+                manager_count = (
+                    self.db.scalar(
+                        select(func.count()).select_from(ProjectMember).where(
+                            ProjectMember.project_id == project_member.project_id,
+                            ProjectMember.role == ProjectRole.PROJECT_MANAGER.value,
+                        )
+                    )
+                    or 0
+                )
+                if manager_count <= 1:
+                    raise LastProjectManagerInTeamError("Project must retain at least one manager")
+
+        for project_member in project_memberships:
             self.db.delete(project_member)
         self.db.delete(member)
         self.db.commit()
