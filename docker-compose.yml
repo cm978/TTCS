@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ttcs-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ttcs
+      MYSQL_USER: ttcs
+      MYSQL_PASSWORD: ttcs_local_password
+      MYSQL_ROOT_PASSWORD: ttcs_local_root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ttcs_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uttcs", "-pttcs_local_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: ttcs-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ttcs_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ttcs_mysql_data:
+  ttcs_redis_data:
+
