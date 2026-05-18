@@ -111,13 +111,13 @@ describe("team project UI components", () => {
   it("renders board empty column copy without fake task cards", () => {
     const wrapper = shallowMount(BoardColumn, {
       props: {
-        column: { id: 1, project_id: 10, name: "待办", status: "TODO", position: 1 }
+        column: { id: 1, project_id: 10, name: "待办", status: "TODO", position: 1 },
+        tasks: []
       }
     });
 
     expect(wrapper.text()).toContain("暂无待办任务");
-    expect(wrapper.text()).toContain("任务功能将在后续阶段接入。当前看板列已准备就绪。");
-    expect(wrapper.text()).not.toContain("创建任务");
+    expect(wrapper.text()).toContain("当前列还没有真实任务。创建任务后，它会按状态出现在这里。");
   });
 
   it("shows project manager guard and permission copy in member drawer", () => {

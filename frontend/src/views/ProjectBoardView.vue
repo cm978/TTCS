@@ -12,13 +12,20 @@
             <h1>{{ board.project.name }}</h1>
             <p>{{ board.members.length }} 名项目成员 · {{ managerCount }} 名项目经理</p>
           </div>
-          <a-button type="primary" :icon="h(UsersRound, { size: 16 })" @click="memberDrawerOpen = true">
-            管理成员
-          </a-button>
+          <div class="board-actions">
+            <a-button :icon="h(UsersRound, { size: 16 })" @click="memberDrawerOpen = true">管理成员</a-button>
+            <a-button type="primary" :loading="taskStore.saving" @click="handleCreateTask">创建任务</a-button>
+          </div>
         </header>
 
         <div class="board-scroll" aria-label="项目基础看板">
-          <BoardColumn v-for="column in orderedColumns" :key="column.id" :column="column" />
+          <BoardColumn
+            v-for="column in orderedColumns"
+            :key="column.id"
+            :column="column"
+            :tasks="tasksByStatus(column.status)"
+            @open-task="handleOpenTask"
+          />
         </div>
 
         <ProjectMemberDrawer
@@ -45,13 +52,16 @@ import ProjectMemberDrawer from "../components/project/ProjectMemberDrawer.vue";
 import AppLayout from "../layouts/AppLayout.vue";
 import { useAuthStore } from "../stores/auth";
 import { useProjectStore } from "../stores/project";
+import { useTaskStore } from "../stores/task";
 import { useTeamStore } from "../stores/team";
 import type { BoardColumnStatus } from "../types/project";
 import type { ProjectMember, ProjectRole } from "../types/project";
+import type { TaskBoardCard } from "../types/task";
 
 const route = useRoute();
 const auth = useAuthStore();
 const projectStore = useProjectStore();
+const taskStore = useTaskStore();
 const teamStore = useTeamStore();
 const memberDrawerOpen = ref(false);
 const projectId = computed(() => Number(route.params.projectId));
@@ -68,6 +78,7 @@ const teamMembers = computed(() => (board.value ? teamStore.membersByTeam[board.
 async function loadBoard() {
   const loaded = await projectStore.loadBoard(projectId.value);
   await teamStore.loadTeamMembers(loaded.project.team_id);
+  await taskStore.loadProjectTasks(projectId.value);
 }
 
 async function refreshBoard() {
@@ -87,6 +98,29 @@ async function handleRoleChange(member: ProjectMember, role: ProjectRole) {
 async function handleRemoveMember(member: ProjectMember) {
   await projectStore.removeMember(projectId.value, member.user.id);
   await refreshBoard();
+}
+
+function tasksByStatus(status: BoardColumnStatus) {
+  return taskStore.tasksByStatus(projectId.value, status);
+}
+
+async function handleOpenTask(task: TaskBoardCard) {
+  taskStore.openDrawer(task.id);
+  await taskStore.loadTaskDetail(task.id);
+}
+
+async function handleCreateTask() {
+  if (!auth.user) {
+    return;
+  }
+  const task = await taskStore.createTask(projectId.value, {
+    title: "新建任务",
+    owner_id: auth.user.id,
+    participant_ids: [],
+    task_type: "GENERAL",
+    priority: "MEDIUM"
+  });
+  taskStore.openDrawer(task.id);
 }
 
 onMounted(() => {
@@ -114,6 +148,12 @@ watch(projectId, () => {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
+}
+
+.board-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .breadcrumb {

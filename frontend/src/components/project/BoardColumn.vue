@@ -4,20 +4,26 @@
       <span class="status-dot" aria-hidden="true" />
       <div>
         <h2>{{ column.name }}</h2>
-        <p>{{ statusLabel(column.status) }} · 0</p>
+        <p>{{ statusLabel(column.status) }} · {{ tasks.length }}</p>
       </div>
     </header>
-    <div class="empty-state">
+    <div v-if="tasks.length === 0" class="empty-state">
       <h3>{{ emptyTitle(column.status) }}</h3>
-      <p>任务功能将在后续阶段接入。当前看板列已准备就绪。</p>
+      <p>当前列还没有真实任务。创建任务后，它会按状态出现在这里。</p>
+    </div>
+    <div v-else class="task-list">
+      <TaskCard v-for="task in tasks" :key="task.id" :task="task" @open="emit('open-task', $event)" />
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
+import TaskCard from "../task/TaskCard.vue";
 import type { BoardColumn, BoardColumnStatus } from "../../types/project";
+import type { TaskBoardCard } from "../../types/task";
 
-defineProps<{ column: BoardColumn }>();
+defineProps<{ column: BoardColumn; tasks: TaskBoardCard[] }>();
+const emit = defineEmits<{ "open-task": [task: TaskBoardCard] }>();
 
 function statusLabel(status: BoardColumnStatus) {
   const labels: Record<BoardColumnStatus, string> = {
@@ -117,6 +123,12 @@ header p,
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
+}
+
+.task-list {
+  display: grid;
+  align-content: start;
+  gap: 10px;
 }
 
 .empty-state h3 {
