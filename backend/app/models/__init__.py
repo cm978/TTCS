@@ -8,6 +8,7 @@ from app.models.task import (
     TaskPriority,
     TaskStatus,
     TaskType,
+    WorkLog,
 )
 from app.models.team import Team, TeamInvitation, TeamInvitationStatus, TeamMember, TeamRole
 from app.models.user import User
@@ -26,6 +27,7 @@ __all__ = [
     "TaskPriority",
     "TaskStatus",
     "TaskType",
+    "WorkLog",
     "Team",
     "TeamInvitation",
     "TeamInvitationStatus",

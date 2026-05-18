@@ -30,6 +30,7 @@ from app.models import (  # noqa: F401
     TeamInvitation,
     TeamMember,
     User,
+    WorkLog,
 )
 
 

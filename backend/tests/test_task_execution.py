@@ -1,7 +1,10 @@
+from datetime import date
+
 import pytest
 
 from app.models.project import ProjectMember, ProjectRole
-from app.models.task import TaskParticipant, TaskPriority, TaskStatus, TaskType
+from app.models.task import TaskParticipant, TaskPriority, TaskStatus, TaskType, WorkLog
+from app.schemas.task import BlockerResolveRequest, WorkLogCreateRequest
 from app.models.team import TeamMember, TeamRole
 from app.services.permissions import PermissionDeniedError, ensure_task_owner_or_project_manager
 from app.services.project_service import ProjectService
@@ -27,6 +30,31 @@ def test_task_domain_enums_match_phase3_contract():
     ]
     assert [task_type.value for task_type in TaskType] == ["GENERAL", "DOCUMENT", "CODE"]
     assert [priority.value for priority in TaskPriority] == ["URGENT", "HIGH", "MEDIUM", "LOW"]
+
+
+def test_work_log_schema_validates_hours_blocker_notes_and_code_fields():
+    valid = WorkLogCreateRequest(
+        work_date=date.today(),
+        hours=1.5,
+        content="Implemented task service",
+        is_blocked=True,
+        blocked_reason="Blocked by missing fixture",
+        commit_hash="abc123",
+        branch_name="feature/task-domain",
+        repository_url="https://example.com/repo",
+    )
+
+    assert valid.commit_hash == "abc123"
+    assert WorkLog.__tablename__ == "work_logs"
+
+    with pytest.raises(ValueError):
+        WorkLogCreateRequest(work_date=date.today(), hours=0.25, content="Too small")
+
+    with pytest.raises(ValueError):
+        WorkLogCreateRequest(work_date=date.today(), hours=1, content="Blocked", is_blocked=True, blocked_reason="short")
+
+    with pytest.raises(ValueError):
+        BlockerResolveRequest(resolution_note="too short")
 
 
 def test_team_admin_without_project_role_cannot_manage_task_permissions(db_session):

@@ -105,8 +105,52 @@ def upgrade() -> None:
     op.create_index("ix_task_dependencies_id", "task_dependencies", ["id"])
     op.create_index("ix_task_dependencies_task_id", "task_dependencies", ["task_id"])
 
+    op.create_table(
+        "work_logs",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("task_id", sa.Integer(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("work_date", sa.Date(), nullable=False),
+        sa.Column("hours", sa.Float(), nullable=False),
+        sa.Column("content", sa.String(length=2000), nullable=False),
+        sa.Column("work_type", sa.String(length=50), nullable=False),
+        sa.Column("is_blocked", sa.Boolean(), nullable=False),
+        sa.Column("blocked_reason", sa.String(length=500), nullable=True),
+        sa.Column("resolved_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("resolved_by_id", sa.Integer(), nullable=True),
+        sa.Column("resolution_note", sa.String(length=500), nullable=True),
+        sa.Column("commit_hash", sa.String(length=120), nullable=True),
+        sa.Column("branch_name", sa.String(length=255), nullable=True),
+        sa.Column("repository_url", sa.String(length=500), nullable=True),
+        sa.Column("git_synced", sa.Boolean(), nullable=False),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.ForeignKeyConstraint(["resolved_by_id"], ["users.id"]),
+        sa.ForeignKeyConstraint(["task_id"], ["tasks.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"]),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index("ix_work_logs_deleted_at", "work_logs", ["deleted_at"])
+    op.create_index("ix_work_logs_id", "work_logs", ["id"])
+    op.create_index("ix_work_logs_is_blocked", "work_logs", ["is_blocked"])
+    op.create_index("ix_work_logs_resolved_at", "work_logs", ["resolved_at"])
+    op.create_index("ix_work_logs_resolved_by_id", "work_logs", ["resolved_by_id"])
+    op.create_index("ix_work_logs_task_id", "work_logs", ["task_id"])
+    op.create_index("ix_work_logs_user_id", "work_logs", ["user_id"])
+    op.create_index("ix_work_logs_work_date", "work_logs", ["work_date"])
+
 
 def downgrade() -> None:
+    op.drop_index("ix_work_logs_work_date", table_name="work_logs")
+    op.drop_index("ix_work_logs_user_id", table_name="work_logs")
+    op.drop_index("ix_work_logs_task_id", table_name="work_logs")
+    op.drop_index("ix_work_logs_resolved_by_id", table_name="work_logs")
+    op.drop_index("ix_work_logs_resolved_at", table_name="work_logs")
+    op.drop_index("ix_work_logs_is_blocked", table_name="work_logs")
+    op.drop_index("ix_work_logs_id", table_name="work_logs")
+    op.drop_index("ix_work_logs_deleted_at", table_name="work_logs")
+    op.drop_table("work_logs")
     op.drop_index("ix_task_dependencies_task_id", table_name="task_dependencies")
     op.drop_index("ix_task_dependencies_id", table_name="task_dependencies")
     op.drop_index("ix_task_dependencies_depends_on_task_id", table_name="task_dependencies")

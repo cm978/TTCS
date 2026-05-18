@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from enum import Enum
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, JSON, String, UniqueConstraint, func
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, JSON, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -79,6 +79,12 @@ class Task(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    work_logs: Mapped[list["WorkLog"]] = relationship(
+        back_populates="task",
+        cascade="all, delete-orphan",
+        order_by="WorkLog.work_date.desc(), WorkLog.created_at.desc()",
+        passive_deletes=True,
+    )
 
 
 class TaskParticipant(Base):
@@ -136,3 +142,34 @@ class TaskDependency(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     task: Mapped[Task] = relationship(foreign_keys=[task_id], back_populates="dependencies")
+
+
+class WorkLog(Base):
+    __tablename__ = "work_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    work_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    hours: Mapped[float] = mapped_column(Float, nullable=False)
+    content: Mapped[str] = mapped_column(String(2000), nullable=False)
+    work_type: Mapped[str] = mapped_column(String(50), nullable=False, default="GENERAL")
+    is_blocked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
+    blocked_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    resolved_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    resolution_note: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    commit_hash: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    branch_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    repository_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    git_synced: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    task: Mapped[Task] = relationship(back_populates="work_logs")

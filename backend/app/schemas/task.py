@@ -122,6 +122,94 @@ class TaskDependencyPublic(BaseModel):
     created_at: datetime
 
 
+class WorkLogCreateRequest(BaseModel):
+    work_date: date
+    hours: float = Field(ge=0.5, le=24)
+    content: str = Field(min_length=2, max_length=2000)
+    work_type: str = Field(default="GENERAL", min_length=2, max_length=50)
+    is_blocked: bool = False
+    blocked_reason: str | None = Field(default=None, max_length=500)
+    commit_hash: str | None = Field(default=None, max_length=120)
+    branch_name: str | None = Field(default=None, max_length=255)
+    repository_url: str | None = Field(default=None, max_length=500)
+
+    @field_validator("hours")
+    @classmethod
+    def validate_half_hour_increment(cls, hours: float) -> float:
+        if (hours * 2) % 1 != 0:
+            raise ValueError("Work-log hours must use 0.5 hour increments")
+        return hours
+
+    @model_validator(mode="after")
+    def validate_blocked_reason(self) -> "WorkLogCreateRequest":
+        if self.work_date > date.today():
+            raise ValueError("Work-log date cannot be in the future")
+        if self.is_blocked and len((self.blocked_reason or "").strip()) < 10:
+            raise ValueError("Blocked reason must be at least 10 characters")
+        return self
+
+
+class WorkLogUpdateRequest(BaseModel):
+    work_date: date | None = None
+    hours: float | None = Field(default=None, ge=0.5, le=24)
+    content: str | None = Field(default=None, min_length=2, max_length=2000)
+    work_type: str | None = Field(default=None, min_length=2, max_length=50)
+    is_blocked: bool | None = None
+    blocked_reason: str | None = Field(default=None, max_length=500)
+    commit_hash: str | None = Field(default=None, max_length=120)
+    branch_name: str | None = Field(default=None, max_length=255)
+    repository_url: str | None = Field(default=None, max_length=500)
+
+    @field_validator("hours")
+    @classmethod
+    def validate_half_hour_increment(cls, hours: float | None) -> float | None:
+        if hours is not None and (hours * 2) % 1 != 0:
+            raise ValueError("Work-log hours must use 0.5 hour increments")
+        return hours
+
+    @model_validator(mode="after")
+    def validate_update(self) -> "WorkLogUpdateRequest":
+        if self.work_date and self.work_date > date.today():
+            raise ValueError("Work-log date cannot be in the future")
+        if self.is_blocked is True and len((self.blocked_reason or "").strip()) < 10:
+            raise ValueError("Blocked reason must be at least 10 characters")
+        return self
+
+
+class BlockerResolveRequest(BaseModel):
+    resolution_note: str = Field(min_length=10, max_length=500)
+
+
+class WorkLogPublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    task_id: int
+    user_id: int
+    work_date: date
+    hours: float
+    content: str
+    work_type: str
+    is_blocked: bool
+    blocked_reason: str | None
+    resolved_at: datetime | None
+    resolved_by_id: int | None
+    resolution_note: str | None
+    commit_hash: str | None
+    branch_name: str | None
+    repository_url: str | None
+    git_synced: bool
+    deleted_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class TaskBlockerSummary(BaseModel):
+    is_blocked: bool
+    current_blocker_summary: str | None
+    unresolved_count: int = 0
+
+
 class TaskPublic(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -151,6 +239,7 @@ class TaskBoardCard(TaskPublic):
     subtask_total: int = 0
     subtask_completed: int = 0
     latest_work_log_at: datetime | None = None
+    blocker_summary: TaskBlockerSummary | None = None
 
 
 class TaskDetailResponse(TaskPublic):
@@ -159,4 +248,5 @@ class TaskDetailResponse(TaskPublic):
     participants: list[TaskParticipantPublic] = Field(default_factory=list)
     subtasks: list[SubtaskPublic] = Field(default_factory=list)
     dependencies: list[TaskDependencyPublic] = Field(default_factory=list)
-
+    work_logs: list[WorkLogPublic] = Field(default_factory=list)
+    blocker_summary: TaskBlockerSummary | None = None
