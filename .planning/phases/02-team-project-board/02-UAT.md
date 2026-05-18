@@ -8,13 +8,13 @@ updated: 2026-05-18T00:00:00+08:00
 
 ## Current Test
 
-number: 3
-name: Create First Team
+number: 6
+name: Team Member Role Guards
 expected: |
-  Click `创建第一个团队`.
-  A `创建团队` form should open with visible labels for team name and description.
-  Submitting a valid team should create the team, select it, and expose member management and project creation entry points.
-awaiting: fix
+  Team member management should show `管理员` and `成员` roles.
+  Admin users should see role/removal actions.
+  When the last admin cannot be demoted or removed, the UI should explain `团队至少需要保留 1 名管理员。`.
+awaiting: user response
 
 ## Tests
 
@@ -30,21 +30,21 @@ result: pass
 
 ### 3. Create First Team
 expected: Clicking `创建第一个团队` opens a `创建团队` form with visible name/description labels. Submitting a valid team creates the team, selects it, and exposes member management and project creation entry points.
-result: issue
-reported: "无法创建团队，提示name is required,但是我已经输入团队名称了"
-severity: major
+result: pass
 
 ### 4. Invite And Accept Team Member
 expected: From team member management, `邀请成员` opens an email/role form. A pending invitation appears as `待接受邀请`; when a user with that email logs in, `/app` shows `你有待接受的团队邀请` and accepting it joins the team with the invited role.
-result: [pending]
+result: pass
 
 ### 5. Create Project And Open Board
 expected: Creating a project from the selected team navigates directly to `/projects/:projectId/board`. The board shows the project title, member summary, `管理成员`, and five empty persisted columns: 待办, 进行中, 待验收, 打回修改, 已完成.
-result: [pending]
+result: pass
 
 ### 6. Team Member Role Guards
 expected: Team member management shows `管理员` and `成员` roles, supports role/removal actions for admins, and explains `团队至少需要保留 1 名管理员。` when the last admin cannot be demoted or removed.
-result: [pending]
+result: issue
+reported: "已经接受的，团队成员怎么还保留，这样一个成员的信息出现两次"
+severity: major
 
 ### 7. Project Member Drawer Guards
 expected: On the project board, `管理成员` opens the `项目成员` drawer. It uses only `项目经理` and `项目成员`, shows `添加项目成员`, and explains `项目至少需要保留 1 名项目经理。` or `只有项目经理可以管理项目成员。` when edits are not allowed.
@@ -53,9 +53,9 @@ result: [pending]
 ## Summary
 
 total: 7
-passed: 1
+passed: 4
 issues: 2
-pending: 4
+pending: 1
 skipped: 0
 blocked: 0
 
@@ -76,7 +76,7 @@ blocked: 0
     - "Run `cd backend && uv run alembic upgrade head` before manual UAT, or add a documented/dev startup migration step."
   debug_session: ""
 - truth: "Submitting the create-team form with a visible team name creates the team"
-  status: failed
+  status: resolved
   reason: "User reported: 无法创建团队，提示name is required,但是我已经输入团队名称了"
   severity: major
   test: 3
@@ -86,4 +86,16 @@ blocked: 0
       issue: "a-form lacks :model binding and explicit rules for the reactive form object."
   missing:
     - "Bind a-form to the reactive form model and provide explicit validation rules for name/description."
+  debug_session: ""
+- truth: "Accepted invitations should not duplicate joined team members in the member management table"
+  status: failed
+  reason: "User reported: 已经接受的，团队成员怎么还保留，这样一个成员的信息出现两次"
+  severity: major
+  test: 6
+  root_cause: "TeamMemberTable renders every invitation returned by the team invitations API, including ACCEPTED records that are already represented by TeamMember rows."
+  artifacts:
+    - path: "frontend/src/components/team/TeamMemberTable.vue"
+      issue: "Invitation rendering does not filter out accepted invitations."
+  missing:
+    - "Filter accepted invitations from the visible invitation rows while keeping pending/expired/cancelled invitation status rows."
   debug_session: ""

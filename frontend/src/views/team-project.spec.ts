@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import BoardColumn from "../components/project/BoardColumn.vue";
 import ProjectMemberDrawer from "../components/project/ProjectMemberDrawer.vue";
+import TeamMemberTable from "../components/team/TeamMemberTable.vue";
 import { createProject, listProjects } from "../api/projects";
 import { createTeam, listMyInvitations, listTeams } from "../api/teams";
 import { useProjectStore } from "../stores/project";
@@ -142,5 +143,64 @@ describe("team project UI components", () => {
     expect(wrapper.text()).toContain("只有项目经理可以管理项目成员。");
     expect(wrapper.text()).toContain("项目至少需要保留 1 名项目经理。");
     expect(wrapper.text()).toContain("添加项目成员");
+  });
+
+  it("does not duplicate accepted invitations in team member table", () => {
+    const wrapper = shallowMount(TeamMemberTable, {
+      props: {
+        isAdmin: true,
+        members: [
+          {
+            id: 1,
+            team_id: 1,
+            user: { ...user, email: "456@example.com", display_name: "测试成员1" },
+            role: "TEAM_MEMBER",
+            created_at: "2026-05-18T02:49:00Z"
+          }
+        ],
+        invitations: [
+          {
+            id: 1,
+            team_id: 1,
+            email: "456@example.com",
+            role: "TEAM_MEMBER",
+            status: "ACCEPTED",
+            invited_by_id: 1,
+            accepted_by_id: 2,
+            expires_at: "2026-05-25T00:00:00Z",
+            accepted_at: "2026-05-18T02:49:00Z",
+            cancelled_at: null,
+            created_at: "2026-05-18T02:48:00Z"
+          },
+          {
+            id: 2,
+            team_id: 1,
+            email: "pending@example.com",
+            role: "TEAM_MEMBER",
+            status: "PENDING",
+            invited_by_id: 1,
+            accepted_by_id: null,
+            expires_at: "2026-05-25T00:00:00Z",
+            accepted_at: null,
+            cancelled_at: null,
+            created_at: "2026-05-18T02:48:00Z"
+          }
+        ]
+      },
+      global: {
+        stubs: {
+          "a-select": { template: "<div><slot /></div>" },
+          "a-select-option": { template: "<div><slot /></div>" },
+          "a-tag": { template: "<span><slot /></span>" },
+          "a-button": { template: "<button><slot /></button>" },
+          "a-popconfirm": { template: "<div><slot /></div>" }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("456@example.com");
+    expect(wrapper.text()).toContain("pending@example.com");
+    expect(wrapper.text()).toContain("待接受邀请");
+    expect(wrapper.text()).not.toContain("已接受");
   });
 });

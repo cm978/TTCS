@@ -42,7 +42,7 @@
               </a-popconfirm>
             </td>
           </tr>
-          <tr v-for="invitation in invitations" :key="`invitation-${invitation.id}`">
+          <tr v-for="invitation in visibleInvitations" :key="`invitation-${invitation.id}`">
             <td>{{ invitation.email }}</td>
             <td>待注册或待接受</td>
             <td>{{ roleLabel(invitation.role) }}</td>
@@ -66,6 +66,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+
 import type { TeamInvitation, TeamInvitationStatus, TeamMember, TeamRole } from "../../types/team";
 
 const props = defineProps<{
@@ -79,6 +81,8 @@ const emit = defineEmits<{
   remove: [member: TeamMember];
   "cancel-invitation": [invitation: TeamInvitation];
 }>();
+
+const visibleInvitations = computed(() => props.invitations.filter((invitation) => invitation.status !== "ACCEPTED"));
 
 function roleLabel(role: TeamRole) {
   return role === "TEAM_ADMIN" ? "管理员" : "成员";
