@@ -7,24 +7,22 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:02:00Z
+updated: 2026-05-18T17:06:30Z
 ---
 
 ## Current Test
 
-number: 2
-name: Board shows API-backed task cards in fixed workflow columns
+number: 1
+name: Phase 3 local demo starts with real seeded data
 expected: |
-  The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible.
+  After running the documented local setup, backend and frontend start successfully. The demo user can log in, open the project board, and see persisted Phase 3 task cards from backend seed data rather than frontend constants.
 awaiting: user response
 
 ## Tests
 
 ### 1. Phase 3 local demo starts with real seeded data
 expected: After running the documented local setup, backend and frontend start successfully. The demo user can log in, open the project board, and see persisted Phase 3 task cards from backend seed data rather than frontend constants.
-result: issue
-reported: "没有看到真实的任务卡片"
-severity: major
+result: [pending]
 
 ### 2. Board shows API-backed task cards in fixed workflow columns
 expected: The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible.
@@ -62,17 +60,9 @@ result: [pending]
 
 total: 9
 passed: 0
-issues: 1
-pending: 8
+issues: 0
+pending: 9
 skipped: 0
 blocked: 0
 
 ## Gaps
-
-- truth: "After running the documented local setup, backend and frontend start successfully. The demo user can log in, open the project board, and see persisted Phase 3 task cards from backend seed data rather than frontend constants."
-  status: failed
-  reason: "User reported: 没有看到真实的任务卡片"
-  severity: major
-  test: 1
-  artifacts: []
-  missing: []
