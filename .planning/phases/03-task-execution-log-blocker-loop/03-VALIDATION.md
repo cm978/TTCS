@@ -80,5 +80,6 @@ Wave 1 must create `backend/tests/test_task_execution.py`. Wave 3 must create `f
 - [x] No watch-mode flags
 - [x] Feedback latency < 90s
 - [x] `nyquist_compliant: true` set in frontmatter
+- [x] Phase boundary audit completed: later-phase terms appear only in README boundary notes or tests asserting absent routes; no working acceptance review, notification, report, AI review, or real Git sync surfaces were found.
 
 **Approval:** approved 2026-05-18
