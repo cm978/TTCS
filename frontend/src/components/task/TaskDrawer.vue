@@ -15,6 +15,9 @@
       </div>
 
       <a-form layout="vertical" @finish="handleSaveBasics">
+        <a-alert v-if="actionMessage" :type="actionMessage.type" show-icon class="drawer-alert">
+          <template #message>{{ actionMessage.text }}</template>
+        </a-alert>
         <a-form-item label="任务标题" required>
           <a-input v-model:value="basicForm.title" />
         </a-form-item>
@@ -38,15 +41,40 @@
             </a-select>
           </a-form-item>
         </div>
+        <a-form-item label="截止日期">
+          <a-date-picker v-model:value="dueDate" />
+        </a-form-item>
         <p class="helper">每个任务最多 5 名参与者，Owner 会自动计入。</p>
         <a-button type="primary" html-type="submit" :loading="saving">保存任务</a-button>
       </a-form>
 
-      <SubtaskChecklist :subtasks="task.subtasks" @add="emit('add-subtask', $event)" @toggle="handleToggleSubtask" />
+      <SubtaskChecklist
+        :subtasks="task.subtasks"
+        :updating-id="updatingSubtaskId"
+        @add="emit('add-subtask', $event)"
+        @toggle="handleToggleSubtask"
+      />
 
       <section class="drawer-section">
-        <h3>记录工作日志</h3>
-        <WorkLogForm :saving="saving" @submit="emit('create-work-log', $event)" />
+        <header class="section-header">
+          <div>
+            <h3>工作日志</h3>
+            <p class="helper">手动记录工作内容，可选填写代码引用。</p>
+          </div>
+          <a-button @click="workLogOpen = !workLogOpen">{{ workLogOpen ? "收起表单" : "记录工作日志" }}</a-button>
+        </header>
+        <WorkLogForm v-if="workLogOpen" :saving="saving" mode="log" @submit="handleWorkLogSubmit" />
+      </section>
+
+      <section class="drawer-section">
+        <header class="section-header">
+          <div>
+            <h3>阻塞</h3>
+            <p class="helper">无法推进时，单独标记阻塞并说明原因。</p>
+          </div>
+          <a-button @click="blockerOpen = !blockerOpen">{{ blockerOpen ? "收起表单" : "标记阻塞" }}</a-button>
+        </header>
+        <WorkLogForm v-if="blockerOpen" :saving="saving" mode="blocker" @submit="handleBlockerSubmit" />
       </section>
 
       <section v-if="unresolvedBlockers.length" class="drawer-section">
@@ -67,7 +95,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from "vue";
+import dayjs, { type Dayjs } from "dayjs";
+import { computed, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import type { Subtask, TaskDetail, TaskPriority, TaskStatus, TaskType, WorkLog, WorkLogCreatePayload } from "../../types/task";
@@ -77,7 +106,7 @@ import WorkLogForm from "./WorkLogForm.vue";
 const props = defineProps<{ open: boolean; task: TaskDetail | null; loading: boolean; saving: boolean; error: string | null }>();
 const emit = defineEmits<{
   "update:open": [value: boolean];
-  "save-basics": [payload: { title: string; description: string | null; task_type: TaskType; priority: TaskPriority }];
+  "save-basics": [payload: { title: string; description: string | null; task_type: TaskType; priority: TaskPriority; due_date: string | null }];
   "add-subtask": [title: string];
   "toggle-subtask": [subtask: Subtask, isCompleted: boolean];
   "create-work-log": [payload: WorkLogCreatePayload];
@@ -85,7 +114,12 @@ const emit = defineEmits<{
 }>();
 const router = useRouter();
 const basicForm = reactive({ title: "", description: "", task_type: "GENERAL" as TaskType, priority: "MEDIUM" as TaskPriority });
+const dueDate = ref<Dayjs | null>(null);
 const resolutionNotes = reactive<Record<number, string>>({});
+const workLogOpen = ref(false);
+const blockerOpen = ref(false);
+const updatingSubtaskId = ref<number | null>(null);
+const actionMessage = ref<{ type: "success" | "error"; text: string } | null>(null);
 const unresolvedBlockers = computed<WorkLog[]>(() =>
   (props.task?.work_logs ?? []).filter((log) => log.is_blocked && !log.resolved_at && !log.deleted_at)
 );
@@ -100,17 +134,41 @@ watch(
     basicForm.description = task.description ?? "";
     basicForm.task_type = task.task_type;
     basicForm.priority = task.priority;
+    dueDate.value = task.due_date ? dayjs(task.due_date) : null;
+    actionMessage.value = null;
   },
   { immediate: true }
 );
 
 function handleSaveBasics() {
-  emit("save-basics", { ...basicForm, description: basicForm.description || null });
+  emit("save-basics", {
+    ...basicForm,
+    description: basicForm.description || null,
+    due_date: dueDate.value ? dueDate.value.format("YYYY-MM-DD") : null
+  });
 }
 
 function handleToggleSubtask(subtask: Subtask, isCompleted: boolean) {
+  updatingSubtaskId.value = subtask.id;
   emit("toggle-subtask", subtask, isCompleted);
 }
+
+function handleWorkLogSubmit(payload: WorkLogCreatePayload) {
+  emit("create-work-log", payload);
+  workLogOpen.value = false;
+}
+
+function handleBlockerSubmit(payload: WorkLogCreatePayload) {
+  emit("create-work-log", { ...payload, is_blocked: true });
+  blockerOpen.value = false;
+}
+
+function setMessage(type: "success" | "error", text: string) {
+  actionMessage.value = { type, text };
+  updatingSubtaskId.value = null;
+}
+
+defineExpose({ setMessage });
 
 function goDetail() {
   if (props.task) {
@@ -154,6 +212,21 @@ function typeLabel(type: TaskType) {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 14px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-header h3 {
+  margin: 0 0 4px;
+}
+
+.drawer-alert {
+  margin-bottom: 8px;
 }
 
 .blocker-row {

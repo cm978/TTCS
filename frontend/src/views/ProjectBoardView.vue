@@ -14,7 +14,7 @@
           </div>
           <div class="board-actions">
             <a-button :icon="h(UsersRound, { size: 16 })" @click="memberDrawerOpen = true">管理成员</a-button>
-            <a-button type="primary" :loading="taskStore.saving" @click="handleCreateTask">创建任务</a-button>
+            <a-button type="primary" @click="createDrawerOpen = true">创建任务</a-button>
           </div>
         </header>
 
@@ -38,6 +38,7 @@
           @remove="handleRemoveMember"
         />
         <TaskDrawer
+          ref="taskDrawerRef"
           :open="taskStore.drawerTaskId !== null"
           :task="taskStore.activeTask"
           :loading="taskStore.loading"
@@ -49,6 +50,13 @@
           @toggle-subtask="handleToggleSubtask"
           @create-work-log="handleCreateWorkLog"
           @resolve-blocker="handleResolveBlocker"
+        />
+        <CreateTaskDrawer
+          v-model:open="createDrawerOpen"
+          :saving="taskStore.saving"
+          :owner-id="auth.user?.id ?? null"
+          :error="createError"
+          @submit="handleCreateTask"
         />
       </template>
     </section>
@@ -62,6 +70,7 @@ import { useRoute } from "vue-router";
 
 import BoardColumn from "../components/project/BoardColumn.vue";
 import ProjectMemberDrawer from "../components/project/ProjectMemberDrawer.vue";
+import CreateTaskDrawer from "../components/task/CreateTaskDrawer.vue";
 import TaskDrawer from "../components/task/TaskDrawer.vue";
 import AppLayout from "../layouts/AppLayout.vue";
 import { useAuthStore } from "../stores/auth";
@@ -70,7 +79,7 @@ import { useTaskStore } from "../stores/task";
 import { useTeamStore } from "../stores/team";
 import type { BoardColumnStatus } from "../types/project";
 import type { ProjectMember, ProjectRole } from "../types/project";
-import type { Subtask, TaskBoardCard, TaskUpdatePayload, WorkLogCreatePayload } from "../types/task";
+import type { Subtask, TaskBoardCard, TaskCreatePayload, TaskUpdatePayload, WorkLogCreatePayload } from "../types/task";
 
 const route = useRoute();
 const auth = useAuthStore();
@@ -78,6 +87,9 @@ const projectStore = useProjectStore();
 const taskStore = useTaskStore();
 const teamStore = useTeamStore();
 const memberDrawerOpen = ref(false);
+const createDrawerOpen = ref(false);
+const createError = ref<string | null>(null);
+const taskDrawerRef = ref<{ setMessage: (type: "success" | "error", text: string) => void } | null>(null);
 const projectId = computed(() => Number(route.params.projectId));
 const board = computed(() => projectStore.activeBoard);
 const statusOrder: BoardColumnStatus[] = ["TODO", "IN_PROGRESS", "IN_REVIEW", "REJECTED", "DONE"];
@@ -123,23 +135,30 @@ async function handleOpenTask(task: TaskBoardCard) {
   await taskStore.loadTaskDetail(task.id);
 }
 
-async function handleCreateTask() {
+async function handleCreateTask(payload: TaskCreatePayload) {
+  createError.value = null;
   if (!auth.user) {
+    createError.value = "请先登录后再创建任务。";
     return;
   }
-  const task = await taskStore.createTask(projectId.value, {
-    title: "新建任务",
-    owner_id: auth.user.id,
-    participant_ids: [],
-    task_type: "GENERAL",
-    priority: "MEDIUM"
-  });
-  taskStore.openDrawer(task.id);
+  try {
+    const task = await taskStore.createTask(projectId.value, payload);
+    createDrawerOpen.value = false;
+    taskStore.openDrawer(task.id);
+    taskDrawerRef.value?.setMessage("success", "任务已创建。");
+  } catch (error) {
+    createError.value = error instanceof Error ? error.message : "任务创建失败，请稍后重试。";
+  }
 }
 
 async function handleSaveTask(payload: TaskUpdatePayload) {
   if (taskStore.activeTask) {
-    await taskStore.updateTask(taskStore.activeTask.id, payload);
+    try {
+      await taskStore.updateTask(taskStore.activeTask.id, payload);
+      taskDrawerRef.value?.setMessage("success", "任务已保存。");
+    } catch (error) {
+      taskDrawerRef.value?.setMessage("error", error instanceof Error ? error.message : "任务保存失败。");
+    }
   }
 }
 
@@ -151,19 +170,34 @@ async function handleAddSubtask(title: string) {
 
 async function handleToggleSubtask(subtask: Subtask, isCompleted: boolean) {
   if (taskStore.activeTask) {
-    await taskStore.toggleSubtask(taskStore.activeTask.id, subtask, isCompleted);
+    try {
+      await taskStore.toggleSubtask(taskStore.activeTask.id, subtask, isCompleted);
+      taskDrawerRef.value?.setMessage("success", isCompleted ? "子任务已完成。" : "子任务已取消完成。");
+    } catch (error) {
+      taskDrawerRef.value?.setMessage("error", error instanceof Error ? error.message : "子任务状态更新失败。");
+    }
   }
 }
 
 async function handleCreateWorkLog(payload: WorkLogCreatePayload) {
   if (taskStore.activeTask) {
-    await taskStore.createWorkLog(taskStore.activeTask.id, payload);
+    try {
+      await taskStore.createWorkLog(taskStore.activeTask.id, payload);
+      taskDrawerRef.value?.setMessage("success", payload.is_blocked ? "任务已标记阻塞。" : "工作日志已保存。");
+    } catch (error) {
+      taskDrawerRef.value?.setMessage("error", error instanceof Error ? error.message : "工作日志保存失败。");
+    }
   }
 }
 
 async function handleResolveBlocker(logId: number, note: string) {
   if (taskStore.activeTask) {
-    await taskStore.resolveBlocker(taskStore.activeTask.id, logId, { resolution_note: note });
+    try {
+      await taskStore.resolveBlocker(taskStore.activeTask.id, logId, { resolution_note: note });
+      taskDrawerRef.value?.setMessage("success", "阻塞已解除。");
+    } catch (error) {
+      taskDrawerRef.value?.setMessage("error", error instanceof Error ? error.message : "解除阻塞失败。");
+    }
   }
 }
 

@@ -2,6 +2,8 @@ import { shallowMount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import BoardColumn from "../components/project/BoardColumn.vue";
+import CreateTaskDrawer from "../components/task/CreateTaskDrawer.vue";
+import SubtaskChecklist from "../components/task/SubtaskChecklist.vue";
 import TaskDrawer from "../components/task/TaskDrawer.vue";
 import TaskCard from "../components/task/TaskCard.vue";
 import WorkLogForm from "../components/task/WorkLogForm.vue";
@@ -86,6 +88,7 @@ describe("task execution UI", () => {
       global: {
         stubs: {
           "a-drawer": { template: "<div><slot name='title' /><slot /></div>" },
+          "a-alert": { template: "<div><slot name='message' /></div>" },
           "a-form": { template: "<form><slot /></form>" },
           "a-form-item": { props: ["label", "extra"], template: "<label>{{ label }}<span>{{ extra }}</span><slot /></label>" },
           "a-select": { template: "<div><slot /></div>" },
@@ -102,6 +105,9 @@ describe("task execution UI", () => {
     });
 
     expect(wrapper.text()).toContain("打开完整详情");
+    expect(wrapper.text()).toContain("截止日期");
+    expect(wrapper.text()).toContain("记录工作日志");
+    expect(wrapper.text()).toContain("标记阻塞");
     expect(wrapper.text()).not.toContain("验收通过");
     expect(wrapper.text()).not.toContain("Review");
   });
@@ -112,6 +118,7 @@ describe("task execution UI", () => {
       global: {
         stubs: {
           "a-form": { template: "<form><slot /></form>" },
+          "a-alert": { template: "<div><slot name='message' /></div>" },
           "a-form-item": { props: ["label", "extra"], template: "<label>{{ label }}<span>{{ extra }}</span><slot /></label>" },
           "a-input": { template: "<input />" },
           "a-textarea": { template: "<textarea />" },
@@ -127,9 +134,85 @@ describe("task execution UI", () => {
     expect(wrapper.text()).toContain("工时");
     expect(wrapper.text()).toContain("工作类型");
     expect(wrapper.text()).toContain("工作内容");
-    expect(wrapper.text()).toContain("是否阻塞");
+    expect(wrapper.text()).toContain("同时标记为阻塞");
     expect(wrapper.text()).toContain("Commit Hash（可选）");
     expect(wrapper.text()).toContain("分支名称（可选）");
     expect(wrapper.text()).toContain("仓库地址（可选）");
+  });
+
+  it("opens a confirmed create-task drawer before submitting a task", async () => {
+    const wrapper = shallowMount(CreateTaskDrawer, {
+      props: { open: true, saving: false, ownerId: 7, error: null },
+      global: {
+        stubs: {
+          "a-drawer": { template: "<div><slot name='title' /><slot /></div>" },
+          "a-alert": { template: "<div><slot name='message' /></div>" },
+          "a-form": { template: "<form><slot /></form>" },
+          "a-form-item": { props: ["label"], template: "<label>{{ label }}<slot /></label>" },
+          "a-input": { template: "<input />" },
+          "a-textarea": { template: "<textarea />" },
+          "a-select": { template: "<div><slot /></div>" },
+          "a-select-option": { template: "<div><slot /></div>" },
+          "a-date-picker": { template: "<input />" },
+          "a-button": { template: "<button><slot /></button>" }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("任务标题");
+    expect(wrapper.text()).toContain("截止日期");
+    expect(wrapper.emitted("submit")).toBeUndefined();
+  });
+
+  it("emits real checkbox state when completing and uncompleting subtasks", async () => {
+    const wrapper = shallowMount(SubtaskChecklist, {
+      props: {
+        subtasks: [
+          {
+            id: 11,
+            task_id: 1,
+            title: "补充验收截图",
+            is_completed: false,
+            completed_by_id: null,
+            completed_at: null,
+            position: 1,
+            created_at: "2026-05-18T00:00:00Z",
+            updated_at: "2026-05-18T00:00:00Z"
+          }
+        ],
+        updatingId: null
+      },
+      global: {
+        stubs: {
+          "a-checkbox": { template: "<input type='checkbox' @change=\"$emit('change', { target: { checked: true } })\" />" },
+          "a-input": { template: "<input />" },
+          "a-button": { template: "<button><slot /></button>" }
+        }
+      }
+    });
+
+    await wrapper.find("input[type='checkbox']").trigger("change");
+
+    expect(wrapper.emitted("toggle")?.[0]?.[1]).toBe(true);
+  });
+
+  it("renders blocker mode as a focused mark-blocked action", () => {
+    const wrapper = shallowMount(WorkLogForm, {
+      props: { saving: false, mode: "blocker" },
+      global: {
+        stubs: {
+          "a-form": { template: "<form><slot /></form>" },
+          "a-alert": { template: "<div><slot name='message' /></div>" },
+          "a-form-item": { props: ["label", "extra"], template: "<label>{{ label }}<span>{{ extra }}</span><slot /></label>" },
+          "a-textarea": { template: "<textarea />" },
+          "a-button": { template: "<button><slot /></button>" }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("阻塞原因");
+    expect(wrapper.text()).toContain("确认标记阻塞");
+    expect(wrapper.text()).not.toContain("工作内容");
+    expect(wrapper.text()).not.toContain("Commit Hash");
   });
 });

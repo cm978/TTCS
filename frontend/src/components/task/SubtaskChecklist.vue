@@ -6,7 +6,11 @@
     </header>
     <div v-if="subtasks.length === 0" class="empty">暂无子任务</div>
     <label v-for="subtask in subtasks" :key="subtask.id" class="subtask-row">
-      <a-checkbox :checked="subtask.is_completed" @change="emit('toggle', subtask, !subtask.is_completed)" />
+      <a-checkbox
+        :checked="subtask.is_completed"
+        :disabled="updatingId === subtask.id"
+        @change="handleToggle(subtask, $event)"
+      />
       <span>{{ subtask.title }}</span>
     </label>
     <div class="add-row">
@@ -21,7 +25,7 @@ import { computed, ref } from "vue";
 
 import type { Subtask } from "../../types/task";
 
-const props = defineProps<{ subtasks: Subtask[] }>();
+const props = defineProps<{ subtasks: Subtask[]; updatingId?: number | null }>();
 const emit = defineEmits<{ add: [title: string]; toggle: [subtask: Subtask, isCompleted: boolean] }>();
 const newTitle = ref("");
 const completed = computed(() => props.subtasks.filter((subtask) => subtask.is_completed).length);
@@ -33,6 +37,10 @@ function handleAdd() {
   }
   emit("add", title);
   newTitle.value = "";
+}
+
+function handleToggle(subtask: Subtask, event: { target?: { checked?: boolean } }) {
+  emit("toggle", subtask, Boolean(event.target?.checked));
 }
 </script>
 

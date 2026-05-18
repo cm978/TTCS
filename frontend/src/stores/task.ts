@@ -123,23 +123,36 @@ export const useTaskStore = defineStore("task", {
       return this.loadTaskDetail(taskId);
     },
     async addSubtask(taskId: number, title: string): Promise<Subtask> {
-      const subtask = await createSubtask(taskId, title);
-      await this.loadTaskDetail(taskId);
-      if (this.activeTask) {
-        await this.loadProjectTasks(this.activeTask.project_id);
+      this.error = null;
+      try {
+        const subtask = await createSubtask(taskId, title);
+        await this.loadTaskDetail(taskId);
+        if (this.activeTask) {
+          await this.loadProjectTasks(this.activeTask.project_id);
+        }
+        return subtask;
+      } catch {
+        this.error = taskError("子任务添加失败，请稍后重试。");
+        throw new Error(this.error);
       }
-      return subtask;
     },
     async toggleSubtask(taskId: number, subtask: Subtask, isCompleted: boolean) {
-      const updated = await updateSubtask(taskId, subtask.id, { is_completed: isCompleted });
-      await this.loadTaskDetail(taskId);
-      if (this.activeTask) {
-        await this.loadProjectTasks(this.activeTask.project_id);
+      this.error = null;
+      try {
+        const updated = await updateSubtask(taskId, subtask.id, { is_completed: isCompleted });
+        await this.loadTaskDetail(taskId);
+        if (this.activeTask) {
+          await this.loadProjectTasks(this.activeTask.project_id);
+        }
+        return updated;
+      } catch {
+        this.error = taskError("子任务状态更新失败，请稍后重试。");
+        throw new Error(this.error);
       }
-      return updated;
     },
     async createWorkLog(taskId: number, payload: WorkLogCreatePayload) {
       this.saving = true;
+      this.error = null;
       try {
         const log = await createWorkLogApi(taskId, payload);
         const task = await this.loadTaskDetail(taskId);
@@ -154,6 +167,7 @@ export const useTaskStore = defineStore("task", {
     },
     async resolveBlocker(taskId: number, logId: number, payload: BlockerResolvePayload) {
       this.saving = true;
+      this.error = null;
       try {
         const log = await resolveBlockerApi(taskId, logId, payload);
         const task = await this.loadTaskDetail(taskId);
