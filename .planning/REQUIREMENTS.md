@@ -36,12 +36,12 @@
 
 ### 工作日志与阻塞
 
-- [ ] **WORK-01**: 任务参与者可以记录工作日志，包含日期、工时、工作内容和工作类型。
-- [ ] **WORK-02**: 工作日志工时最小 0.5 小时，最大 24 小时。
-- [ ] **WORK-03**: 工作日志可选关联 Commit Hash、分支名称和仓库地址，作为一期手工/模拟代码证据。
-- [ ] **WORK-04**: 成员可以在工作日志中标记阻塞，并填写不少于 10 个字符的阻塞原因。
-- [ ] **WORK-05**: 未解除阻塞会阻止任务提交验收。
-- [ ] **WORK-06**: 阻塞任务必须进入每日站会阻塞报告并通知 Owner 或项目经理。
+- [x] **WORK-01**: 任务参与者可以记录工作日志，包含日期、工时、工作内容和工作类型。
+- [x] **WORK-02**: 工作日志工时最小 0.5 小时，最大 24 小时。
+- [x] **WORK-03**: 工作日志可选关联 Commit Hash、分支名称和仓库地址，作为一期手工/模拟代码证据。
+- [x] **WORK-04**: 成员可以在工作日志中标记阻塞，并填写不少于 10 个字符的阻塞原因。
+- [x] **WORK-05**: 未解除阻塞会阻止任务提交验收。
+- [x] **WORK-06**: 阻塞任务必须进入每日站会阻塞报告并通知 Owner 或项目经理。
 
 ### 任务验收
 
@@ -143,12 +143,12 @@
 | TASK-06 | Phase 3 | Complete |
 | TASK-07 | Phase 3 | Complete |
 | TASK-08 | Phase 3 | Complete |
-| WORK-01 | Phase 3 | Pending |
-| WORK-02 | Phase 3 | Pending |
-| WORK-03 | Phase 3 | Pending |
-| WORK-04 | Phase 3 | Pending |
-| WORK-05 | Phase 3 | Pending |
-| WORK-06 | Phase 3 | Pending |
+| WORK-01 | Phase 3 | Complete |
+| WORK-02 | Phase 3 | Complete |
+| WORK-03 | Phase 3 | Complete |
+| WORK-04 | Phase 3 | Complete |
+| WORK-05 | Phase 3 | Complete |
+| WORK-06 | Phase 3 | Complete |
 | ACPT-01 | Phase 4 | Pending |
 | ACPT-02 | Phase 4 | Pending |
 | ACPT-03 | Phase 4 | Pending |
