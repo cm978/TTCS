@@ -7,15 +7,15 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:26:00Z
+updated: 2026-05-18T17:29:00Z
 ---
 
 ## Current Test
 
-number: 6
-name: Record a normal work log with optional code references
+number: 7
+name: Mark a task blocked from a work log
 expected: |
-  The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
+  Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
 awaiting: user response
 
 ## Tests
@@ -50,7 +50,9 @@ severity: major
 
 ### 6. Record a normal work log with optional code references
 expected: The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
-result: [pending]
+result: issue
+reported: "有这些内容，但是填写无法保存，日志表单不应该直接出现在抽屉，应该是填写时再出现提示"
+severity: major
 
 ### 7. Mark a task blocked from a work log
 expected: Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
@@ -68,8 +70,8 @@ result: [pending]
 
 total: 9
 passed: 1
-issues: 4
-pending: 4
+issues: 5
+pending: 3
 skipped: 0
 blocked: 0
 
@@ -104,5 +106,13 @@ blocked: 0
   reason: "User reported: 可以添加子任务，但是不能勾选取消和选择完成"
   severity: major
   test: 5
+  artifacts: []
+  missing: []
+
+- truth: "The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration."
+  status: failed
+  reason: "User reported: 有这些内容，但是填写无法保存，日志表单不应该直接出现在抽屉，应该是填写时再出现提示"
+  severity: major
+  test: 6
   artifacts: []
   missing: []
