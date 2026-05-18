@@ -5,6 +5,7 @@ import { useAuthStore } from "../stores/auth";
 import LoginView from "../views/LoginView.vue";
 import ProjectBoardView from "../views/ProjectBoardView.vue";
 import RegisterView from "../views/RegisterView.vue";
+import TaskDetailView from "../views/TaskDetailView.vue";
 import TeamProjectStartView from "../views/TeamProjectStartView.vue";
 import TeamMembersView from "../views/TeamMembersView.vue";
 
@@ -17,6 +18,7 @@ const router = createRouter({
     { path: "/app", name: "team-project-start", component: TeamProjectStartView, meta: { requiresAuth: true } },
     { path: "/teams/:teamId/members", name: "team-members", component: TeamMembersView, meta: { requiresAuth: true } },
     { path: "/projects/:projectId/board", name: "project-board", component: ProjectBoardView, meta: { requiresAuth: true } },
+    { path: "/tasks/:taskId", name: "task-detail", component: TaskDetailView, meta: { requiresAuth: true } },
     { path: "/:pathMatch(.*)*", redirect: "/app" }
   ]
 });

@@ -2,7 +2,9 @@ import { shallowMount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import BoardColumn from "../components/project/BoardColumn.vue";
+import TaskDrawer from "../components/task/TaskDrawer.vue";
 import TaskCard from "../components/task/TaskCard.vue";
+import WorkLogForm from "../components/task/WorkLogForm.vue";
 import router from "../router";
 import type { TaskBoardCard } from "../types/task";
 
@@ -64,8 +66,70 @@ describe("task execution UI", () => {
   });
 
   it("does not register premature acceptance review routes", () => {
+    const taskRoute = router.getRoutes().find((route) => route.name === "task-detail");
+    expect(taskRoute?.path).toBe("/tasks/:taskId");
+    expect(taskRoute?.meta.requiresAuth).toBe(true);
     expect(router.getRoutes().some((route) => route.path.includes("acceptance-reviews"))).toBe(false);
     expect(router.getRoutes().some((route) => route.path.includes("notifications"))).toBe(false);
     expect(router.getRoutes().some((route) => route.path.includes("reports"))).toBe(false);
+  });
+
+  it("renders drawer detail action without acceptance review controls", () => {
+    const wrapper = shallowMount(TaskDrawer, {
+      props: {
+        open: true,
+        loading: false,
+        saving: false,
+        error: null,
+        task: { ...task, subtasks: [], dependencies: [], work_logs: [], column: null }
+      },
+      global: {
+        stubs: {
+          "a-drawer": { template: "<div><slot name='title' /><slot /></div>" },
+          "a-form": { template: "<form><slot /></form>" },
+          "a-form-item": { props: ["label", "extra"], template: "<label>{{ label }}<span>{{ extra }}</span><slot /></label>" },
+          "a-select": { template: "<div><slot /></div>" },
+          "a-select-option": { template: "<div><slot /></div>" },
+          "a-tag": { template: "<span><slot /></span>" },
+          "a-input": { template: "<input />" },
+          "a-textarea": { template: "<textarea />" },
+          "a-input-number": { template: "<input />" },
+          "a-date-picker": { template: "<input />" },
+          "a-checkbox": { template: "<label><slot /></label>" },
+          "a-button": { template: "<button><slot /></button>" }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("打开完整详情");
+    expect(wrapper.text()).not.toContain("验收通过");
+    expect(wrapper.text()).not.toContain("Review");
+  });
+
+  it("renders visible work-log form labels and helper copy", () => {
+    const wrapper = shallowMount(WorkLogForm, {
+      props: { saving: false },
+      global: {
+        stubs: {
+          "a-form": { template: "<form><slot /></form>" },
+          "a-form-item": { props: ["label", "extra"], template: "<label>{{ label }}<span>{{ extra }}</span><slot /></label>" },
+          "a-input": { template: "<input />" },
+          "a-textarea": { template: "<textarea />" },
+          "a-input-number": { template: "<input />" },
+          "a-date-picker": { template: "<input />" },
+          "a-checkbox": { template: "<label><slot /></label>" },
+          "a-button": { template: "<button><slot /></button>" }
+        }
+      }
+    });
+
+    expect(wrapper.text()).toContain("工作日期");
+    expect(wrapper.text()).toContain("工时");
+    expect(wrapper.text()).toContain("工作类型");
+    expect(wrapper.text()).toContain("工作内容");
+    expect(wrapper.text()).toContain("是否阻塞");
+    expect(wrapper.text()).toContain("Commit Hash（可选）");
+    expect(wrapper.text()).toContain("分支名称（可选）");
+    expect(wrapper.text()).toContain("仓库地址（可选）");
   });
 });
