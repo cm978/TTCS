@@ -97,6 +97,20 @@ def test_create_task_auto_adds_owner_and_counts_participant_limit(db_session):
         )
 
 
+def test_task_can_have_owner_as_sole_participant(db_session):
+    owner, project = make_project(db_session)
+
+    task = TaskService(db_session).create_task(
+        owner,
+        project.id,
+        payload(title="Owner-only task", owner_id=owner.id, participant_ids=[]),
+    )
+    participants = db_session.query(TaskParticipant).filter_by(task_id=task.id, removed_at=None).all()
+
+    assert len(participants) == 1
+    assert participants[0].user_id == owner.id
+
+
 def test_owner_and_project_manager_manage_participants_but_ordinary_participant_cannot(db_session):
     owner, project = make_project(db_session)
     participant = make_user(db_session, "participant@example.com")
