@@ -39,13 +39,13 @@ created: 2026-05-18
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 03-01-01 | 01 | 1 | TASK-01, TASK-04, TASK-05 | T-03-01 | Project membership and Owner/participant rules enforced server-side | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ❌ W1 | ⬜ pending |
-| 03-01-02 | 01 | 1 | TASK-06, TASK-07, TASK-08 | T-03-02 | State transitions, dependencies, and progress cannot be client-forged | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ❌ W1 | ⬜ pending |
-| 03-02-01 | 02 | 2 | WORK-01, WORK-02, WORK-03 | T-03-03 | Work logs validate actor, date, hours, and code fields without external Git access | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ❌ W2 | ⬜ pending |
-| 03-02-02 | 02 | 2 | WORK-04, WORK-05, WORK-06 | T-03-04 | Unresolved blockers prevent acceptance eligibility and preserve audit fields | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ❌ W2 | ⬜ pending |
-| 03-03-01 | 03 | 3 | TASK-01, TASK-02, TASK-08 | T-03-05 | Frontend does not expose unauthorized or fake task actions | component/type | `cd frontend && npm run typecheck && npm run test:unit -- --run src/views/task-execution.spec.ts` | ❌ W3 | ⬜ pending |
-| 03-03-02 | 03 | 3 | WORK-01, WORK-04, WORK-05 | T-03-06 | Drawer and detail UI preserve blocker and work-log visibility without fake data | component/type | `cd frontend && npm run typecheck && npm run test:unit -- --run src/views/task-execution.spec.ts` | ❌ W3 | ⬜ pending |
-| 03-04-01 | 04 | 4 | TASK-01..08, WORK-01..06 | T-03-07 | End-to-end demo path uses persisted task, work-log, and blocker data | full suite | `cd backend && uv run pytest -q && cd ../frontend && npm run typecheck && npm run test:unit -- --run && npm run build` | ✅ | ⬜ pending |
+| 03-01-01 | 01 | 1 | TASK-01, TASK-04, TASK-05 | T-03-01 | Project membership and Owner/participant rules enforced server-side | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ✅ | ✅ green |
+| 03-01-02 | 01 | 1 | TASK-06, TASK-07, TASK-08 | T-03-02 | State transitions, dependencies, and progress cannot be client-forged | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ✅ | ✅ green |
+| 03-02-01 | 02 | 2 | WORK-01, WORK-02, WORK-03 | T-03-03 | Work logs validate actor, date, hours, and code fields without external Git access | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ✅ | ✅ green |
+| 03-02-02 | 02 | 2 | WORK-04, WORK-05, WORK-06 | T-03-04 | Unresolved blockers prevent acceptance eligibility and preserve audit fields | unit/API | `cd backend && uv run pytest -q tests/test_task_execution.py` | ✅ | ✅ green |
+| 03-03-01 | 03 | 3 | TASK-01, TASK-02, TASK-08 | T-03-05 | Frontend does not expose unauthorized or fake task actions | component/type | `cd frontend && npm run typecheck && npm run test:unit -- --run src/views/task-execution.spec.ts` | ✅ | ✅ green |
+| 03-03-02 | 03 | 3 | WORK-01, WORK-04, WORK-05 | T-03-06 | Drawer and detail UI preserve blocker and work-log visibility without fake data | component/type | `cd frontend && npm run typecheck && npm run test:unit -- --run src/views/task-execution.spec.ts` | ✅ | ✅ green |
+| 03-04-01 | 04 | 4 | TASK-01..08, WORK-01..06 | T-03-07 | End-to-end demo path uses persisted task, work-log, and blocker data | full suite | `cd backend && uv run pytest -q && cd ../frontend && npm run typecheck && npm run test:unit -- --run && npm run build` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
