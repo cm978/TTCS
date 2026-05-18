@@ -96,6 +96,8 @@ class TaskService:
             self._ensure_project_member_user(project_id, user_id)
 
         column = self._resolve_column(project_id, _value(payload, "column_id"), _value(payload, "status", TaskStatus.TODO.value))
+        if column.status != TaskStatus.TODO.value:
+            raise InvalidTaskStatusTransitionError("New Phase 3 tasks must start in TODO")
         task = Task(
             project_id=project_id,
             column_id=column.id,

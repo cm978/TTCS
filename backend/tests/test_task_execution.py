@@ -216,6 +216,18 @@ def test_dependency_cycle_and_done_transition_are_rejected(db_session):
         service.change_status(owner, first.id, TaskStatus.DONE.value)
 
 
+def test_create_task_cannot_start_in_done_or_review_column(db_session):
+    owner, project = make_project(db_session)
+    done_column = next(column for column in project.columns if column.status == TaskStatus.DONE.value)
+
+    with pytest.raises(InvalidTaskStatusTransitionError):
+        TaskService(db_session).create_task(
+            owner,
+            project.id,
+            payload(title="Illegal start", owner_id=owner.id, participant_ids=[], column_id=done_column.id),
+        )
+
+
 def test_work_log_blockers_recompute_task_blocked_state_and_latest_summary(db_session):
     owner, project = make_project(db_session)
     service = TaskService(db_session)
