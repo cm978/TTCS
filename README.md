@@ -46,10 +46,25 @@ Phase 1 uses a JWT Bearer token stored in `localStorage` for local/demo ergonomi
 
 Phase 1 does not implement teams, projects, tasks, work logs, acceptance gates, workspace queues, reports, Git synchronization, or AI review.
 
+## Phase 3 Task Execution Smoke
+
+Use this smoke path after running migrations and `uv run python -m app.scripts.seed_demo_user`.
+
+1. Open `http://localhost:5173` and log in with the local demo user.
+2. Open the seeded `Phase 3 Demo Project` project board, or create a team/project manually.
+3. Click `创建任务` to create a real persisted task, then click the task card to open the drawer.
+4. In the drawer, edit basic task fields or add a one-level subtask.
+5. Use `记录工作日志` with `工作日期`, `工时`, `工作类型`, and `工作内容`.
+6. Check `是否阻塞`, enter a `阻塞原因` of at least 10 characters, and submit the log.
+7. Confirm the board task card shows `阻塞中` and does not show the work-log body text.
+8. Resolve the blocker with a note of at least 10 characters.
+9. Open `/tasks/:taskId` from `打开完整详情` and confirm work-log history and blocker history are visible.
+
+Phase 3 intentionally does not implement acceptance approve/reject Review controls, notification center, reports, real Git synchronization, or AI review. Those are later-phase capabilities.
+
 ## Verification
 
 ```bash
 cd backend && uv run pytest -q
 cd frontend && npm run typecheck && npm run test:unit -- --run && npm run build
 ```
-
