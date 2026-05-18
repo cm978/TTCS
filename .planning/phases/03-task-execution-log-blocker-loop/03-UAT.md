@@ -7,15 +7,15 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:23:00Z
+updated: 2026-05-18T17:26:00Z
 ---
 
 ## Current Test
 
-number: 5
-name: Add and complete one-level subtasks
+number: 6
+name: Record a normal work log with optional code references
 expected: |
-  Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
+  The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
 awaiting: user response
 
 ## Tests
@@ -44,7 +44,9 @@ severity: major
 
 ### 5. Add and complete one-level subtasks
 expected: Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
-result: [pending]
+result: issue
+reported: "可以添加子任务，但是不能勾选取消和选择完成"
+severity: major
 
 ### 6. Record a normal work log with optional code references
 expected: The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
@@ -66,8 +68,8 @@ result: [pending]
 
 total: 9
 passed: 1
-issues: 3
-pending: 5
+issues: 4
+pending: 4
 skipped: 0
 blocked: 0
 
@@ -94,5 +96,13 @@ blocked: 0
   reason: "User reported: 会出现抽屉，不能保存和刷新"
   severity: major
   test: 4
+  artifacts: []
+  missing: []
+
+- truth: "Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks."
+  status: failed
+  reason: "User reported: 可以添加子任务，但是不能勾选取消和选择完成"
+  severity: major
+  test: 5
   artifacts: []
   missing: []
