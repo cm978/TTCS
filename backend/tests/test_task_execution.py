@@ -385,6 +385,17 @@ def test_task_api_permissions_status_codes_and_no_acceptance_routes(client):
         headers=owner_headers,
     )
     task_id = first.json()["id"]
+    updated = client.patch(
+        f"/api/v1/tasks/{task_id}",
+        json={"title": "Updated API task", "priority": "URGENT"},
+        headers=owner_headers,
+    )
+    removed_participant = client.delete(f"/api/v1/tasks/{task_id}/participants/{member_id}", headers=owner_headers)
+    readded_participant = client.post(
+        f"/api/v1/tasks/{task_id}/participants",
+        json={"user_id": member_id},
+        headers=owner_headers,
+    )
     dep = client.post(
         f"/api/v1/tasks/{task_id}/dependencies",
         json={"depends_on_task_id": second.json()["id"]},
@@ -413,6 +424,13 @@ def test_task_api_permissions_status_codes_and_no_acceptance_routes(client):
     acceptance_review = client.post(f"/api/v1/tasks/{task_id}/acceptance-reviews", headers=owner_headers)
 
     assert add_project_member.status_code == 201
+    assert updated.status_code == 200
+    assert updated.json()["title"] == "Updated API task"
+    assert updated.json()["priority"] == "URGENT"
+    assert removed_participant.status_code == 200
+    assert removed_participant.json()["removed_at"] is not None
+    assert readded_participant.status_code == 201
+    assert readded_participant.json()["removed_at"] is None
     assert dep.status_code == 201
     assert cycle.status_code == 409
     assert future_log.status_code in {400, 422}
