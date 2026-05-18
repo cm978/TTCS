@@ -7,15 +7,15 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:32:00Z
+updated: 2026-05-18T17:35:00Z
 ---
 
 ## Current Test
 
-number: 8
-name: Resolve a blocker and preserve blocker history
+number: 9
+name: Open the protected direct task detail route
 expected: |
-  Resolving a blocker requires a resolution note with at least 10 characters. After all blockers are resolved, the task is no longer shown as blocked, and the blocker timeline/history keeps the resolution note.
+  Opening `/tasks/:taskId` while authenticated shows overview, subtasks, work-log history, blocker history, and a return path to the project board. Unauthenticated access redirects through the existing auth guard.
 awaiting: user response
 
 ## Tests
@@ -62,7 +62,7 @@ severity: major
 
 ### 8. Resolve a blocker and preserve blocker history
 expected: Resolving a blocker requires a resolution note with at least 10 characters. After all blockers are resolved, the task is no longer shown as blocked, and the blocker timeline/history keeps the resolution note.
-result: [pending]
+result: pass
 
 ### 9. Open the protected direct task detail route
 expected: Opening `/tasks/:taskId` while authenticated shows overview, subtasks, work-log history, blocker history, and a return path to the project board. Unauthenticated access redirects through the existing auth guard.
@@ -71,9 +71,9 @@ result: [pending]
 ## Summary
 
 total: 9
-passed: 1
+passed: 2
 issues: 6
-pending: 2
+pending: 1
 skipped: 0
 blocked: 0
 
