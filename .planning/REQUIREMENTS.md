@@ -25,14 +25,14 @@
 
 ### 任务与看板
 
-- [ ] **TASK-01**: 项目成员可以创建任务，包含标题、描述、任务类型、优先级、截止日期、Owner、参与者、所属列和标签。
-- [ ] **TASK-02**: 有权限的用户可以编辑任务基础信息。
-- [ ] **TASK-03**: 项目经理可以软删除任务。
-- [ ] **TASK-04**: 任务支持普通任务、文档任务、代码任务三种类型。
-- [ ] **TASK-05**: 每个任务必须有明确 Owner，并最多支持 5 名参与者。
-- [ ] **TASK-06**: 任务可以拆分为最多 3 级子任务，并基于子任务完成度自动计算进度。
-- [ ] **TASK-07**: 任务可以设置同项目内依赖关系，并禁止循环依赖。
-- [ ] **TASK-08**: 任务状态只能按待办、进行中、待验收、打回修改、已完成、已关闭的合法状态机流转。
+- [x] **TASK-01**: 项目成员可以创建任务，包含标题、描述、任务类型、优先级、截止日期、Owner、参与者、所属列和标签。
+- [x] **TASK-02**: 有权限的用户可以编辑任务基础信息。
+- [x] **TASK-03**: 项目经理可以软删除任务。
+- [x] **TASK-04**: 任务支持普通任务、文档任务、代码任务三种类型。
+- [x] **TASK-05**: 每个任务必须有明确 Owner，并最多支持 5 名参与者。
+- [x] **TASK-06**: 任务可以拆分为最多 3 级子任务，并基于子任务完成度自动计算进度。
+- [x] **TASK-07**: 任务可以设置同项目内依赖关系，并禁止循环依赖。
+- [x] **TASK-08**: 任务状态只能按待办、进行中、待验收、打回修改、已完成、已关闭的合法状态机流转。
 
 ### 工作日志与阻塞
 
@@ -135,14 +135,14 @@
 | PROJ-01 | Phase 2 | Complete |
 | PROJ-02 | Phase 2 | Complete |
 | PROJ-03 | Phase 2 | Complete |
-| TASK-01 | Phase 3 | Pending |
-| TASK-02 | Phase 3 | Pending |
-| TASK-03 | Phase 3 | Pending |
-| TASK-04 | Phase 3 | Pending |
-| TASK-05 | Phase 3 | Pending |
-| TASK-06 | Phase 3 | Pending |
-| TASK-07 | Phase 3 | Pending |
-| TASK-08 | Phase 3 | Pending |
+| TASK-01 | Phase 3 | Complete |
+| TASK-02 | Phase 3 | Complete |
+| TASK-03 | Phase 3 | Complete |
+| TASK-04 | Phase 3 | Complete |
+| TASK-05 | Phase 3 | Complete |
+| TASK-06 | Phase 3 | Complete |
+| TASK-07 | Phase 3 | Complete |
+| TASK-08 | Phase 3 | Complete |
 | WORK-01 | Phase 3 | Pending |
 | WORK-02 | Phase 3 | Pending |
 | WORK-03 | Phase 3 | Pending |
