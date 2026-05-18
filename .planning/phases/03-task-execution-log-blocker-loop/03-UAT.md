@@ -7,15 +7,15 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:20:00Z
+updated: 2026-05-18T17:23:00Z
 ---
 
 ## Current Test
 
-number: 4
-name: Edit task basics in the drawer
+number: 5
+name: Add and complete one-level subtasks
 expected: |
-  Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
+  Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
 awaiting: user response
 
 ## Tests
@@ -38,7 +38,9 @@ severity: major
 
 ### 4. Edit task basics in the drawer
 expected: Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
-result: [pending]
+result: issue
+reported: "会出现抽屉，不能保存和刷新"
+severity: major
 
 ### 5. Add and complete one-level subtasks
 expected: Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
@@ -64,8 +66,8 @@ result: [pending]
 
 total: 9
 passed: 1
-issues: 2
-pending: 6
+issues: 3
+pending: 5
 skipped: 0
 blocked: 0
 
@@ -84,5 +86,13 @@ blocked: 0
   reason: "User reported: 点击创建任务，直接出现在代办栏了，还没有填写信息，保存任务也没有反应，点击创建任务，应该会有一个卡片弹出，填写信息确认后在成功创建啊"
   severity: major
   test: 3
+  artifacts: []
+  missing: []
+
+- truth: "Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable."
+  status: failed
+  reason: "User reported: 会出现抽屉，不能保存和刷新"
+  severity: major
+  test: 4
   artifacts: []
   missing: []
