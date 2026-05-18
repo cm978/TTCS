@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 02-team-project-board
-source: [02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md]
+source: [02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md]
 started: 2026-05-18T00:00:00+08:00
-updated: 2026-05-18T10:59:00+08:00
+updated: 2026-05-18T11:25:55+08:00
 ---
 
 ## Current Test
@@ -14,9 +14,8 @@ updated: 2026-05-18T10:59:00+08:00
 
 ### 1. Cold Start Smoke Test
 expected: Kill any running backend/frontend service, start the application from scratch, open `/app` after login, and the team/project APIs load without server errors.
-result: issue
-reported: "Automated cold-start check hit GET /api/v1/teams -> 500 Internal Server Error; backend log shows sqlite3.OperationalError: no such table: teams"
-severity: blocker
+result: pass
+evidence: "Re-run with temporary SQLite databases: stale revision 20260517_0001 fails before serving with migration command; freshly migrated database registers/logs in and GET /api/v1/teams returns 200 []."
 
 ### 2. Authenticated Team/Project Start
 expected: Open the app, register or log in, and land on `/app`. The page shows `团队与项目`, not the old Phase 1 `基础认证已就绪` copy. If the account has no teams, the primary empty state offers `创建第一个团队`.
@@ -45,8 +44,8 @@ result: pass
 ## Summary
 
 total: 7
-passed: 6
-issues: 1
+passed: 7
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -54,18 +53,23 @@ blocked: 0
 ## Gaps
 
 - truth: "Cold start applies or requires Phase 2 schema before team/project APIs are used"
-  status: failed
+  status: resolved
   reason: "Automated cold-start check hit GET /api/v1/teams -> 500 Internal Server Error; backend log shows sqlite3.OperationalError: no such table: teams"
   severity: blocker
   test: 1
   root_cause: "Local SQLite database backend/ttcs.db was still at Alembic revision 20260517_0001 with only the users table; Phase 2 migration 20260517_0002 had not been applied before starting the backend."
+  resolution: "Plan 02-05 added a FastAPI startup migration readiness guard, direct CLI check, README remediation, and regression tests. Re-verification showed stale databases fail fast with `cd backend && uv run alembic upgrade head`, while freshly migrated databases serve `/api/v1/teams` with 200."
   artifacts:
     - path: "backend/ttcs.db"
       issue: "Runtime database missing teams, team_members, team_invitations, projects, project_members, and board_columns tables."
     - path: "backend/alembic/versions/20260517_0002_create_team_project_board.py"
       issue: "Migration exists but was not applied to the local runtime database."
+    - path: "backend/app/scripts/ensure_migrations.py"
+      issue: "Added readiness check comparing current Alembic revision to head."
+    - path: "backend/app/main.py"
+      issue: "Added startup guard through FastAPI lifespan."
   missing:
-    - "Run `cd backend && uv run alembic upgrade head` before manual UAT, or add a documented/dev startup migration step."
+    - "None - resolved by migration readiness guard and documented remediation."
   debug_session: ""
 - truth: "Submitting the create-team form with a visible team name creates the team"
   status: resolved
