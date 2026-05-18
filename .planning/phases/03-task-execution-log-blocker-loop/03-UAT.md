@@ -1,5 +1,5 @@
 ---
-status: testing
+status: complete
 phase: 03-task-execution-log-blocker-loop
 source:
   - 03-01-SUMMARY.md
@@ -7,16 +7,12 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:35:00Z
+updated: 2026-05-18T17:38:00Z
 ---
 
 ## Current Test
 
-number: 9
-name: Open the protected direct task detail route
-expected: |
-  Opening `/tasks/:taskId` while authenticated shows overview, subtasks, work-log history, blocker history, and a return path to the project board. Unauthenticated access redirects through the existing auth guard.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -66,14 +62,14 @@ result: pass
 
 ### 9. Open the protected direct task detail route
 expected: Opening `/tasks/:taskId` while authenticated shows overview, subtasks, work-log history, blocker history, and a return path to the project board. Unauthenticated access redirects through the existing auth guard.
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 9
-passed: 2
+passed: 3
 issues: 6
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
