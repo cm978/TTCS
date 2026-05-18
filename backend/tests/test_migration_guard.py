@@ -2,11 +2,12 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, text
 
 from app.core.config import get_settings
 from app.main import create_app
-from app.scripts.ensure_migrations import MigrationNotReadyError, ensure_database_at_head, is_in_memory_sqlite
+from app.scripts.ensure_migrations import MigrationNotReadyError, _alembic_config, ensure_database_at_head, is_in_memory_sqlite
 
 
 def sqlite_url(path: Path) -> str:
@@ -25,6 +26,12 @@ def write_revision(database_path: Path, revision: str) -> str:
     return database_url
 
 
+def current_alembic_head() -> str:
+    heads = ScriptDirectory.from_config(_alembic_config()).get_heads()
+    assert len(heads) == 1
+    return heads[0]
+
+
 def test_migration_guard_rejects_stale_database(tmp_path):
     database_url = write_revision(tmp_path / "stale.db", "20260517_0001")
 
@@ -33,12 +40,12 @@ def test_migration_guard_rejects_stale_database(tmp_path):
 
     message = str(exc.value)
     assert "Current revision: 20260517_0001" in message
-    assert "expected head: 20260517_0002" in message
+    assert f"expected head: {current_alembic_head()}" in message
     assert "cd backend && uv run alembic upgrade head" in message
 
 
 def test_migration_guard_accepts_database_at_head(tmp_path):
-    database_url = write_revision(tmp_path / "current.db", "20260517_0002")
+    database_url = write_revision(tmp_path / "current.db", current_alembic_head())
 
     assert ensure_database_at_head(database_url) is True
 
