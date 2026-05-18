@@ -15,6 +15,7 @@ from app.services.task_service import (
 )
 from app.services.task_state import InvalidTaskStatusTransitionError
 from app.services.team_service import TeamService
+from app.services.work_log_service import WorkLogService, WorkLogValidationError
 from tests.test_team_project import make_user, payload
 
 
@@ -213,3 +214,76 @@ def test_dependency_cycle_and_done_transition_are_rejected(db_session):
     service.change_status(owner, first.id, TaskStatus.IN_PROGRESS.value)
     with pytest.raises(InvalidTaskStatusTransitionError):
         service.change_status(owner, first.id, TaskStatus.DONE.value)
+
+
+def test_work_log_blockers_recompute_task_blocked_state_and_latest_summary(db_session):
+    owner, project = make_project(db_session)
+    service = TaskService(db_session)
+    task = service.create_task(owner, project.id, payload(title="Blocked task", owner_id=owner.id, participant_ids=[]))
+    logs = WorkLogService(db_session)
+
+    first = logs.create_work_log(
+        owner,
+        task.id,
+        payload(
+            work_date=date.today(),
+            hours=1,
+            content="Found dependency issue",
+            is_blocked=True,
+            blocked_reason="Waiting for API contract",
+        ),
+    )
+    second = logs.create_work_log(
+        owner,
+        task.id,
+        payload(
+            work_date=date.today(),
+            hours=0.5,
+            content="Second blocker",
+            is_blocked=True,
+            blocked_reason="Waiting for test account",
+        ),
+    )
+
+    db_session.refresh(task)
+    assert task.is_blocked is True
+    assert task.current_blocker_summary == "Waiting for test account"
+    assert logs.can_submit_acceptance_preview(task.id) is False
+
+    logs.resolve_blocker(owner, second.id, payload(resolution_note="Test account created"))
+    db_session.refresh(task)
+    assert task.is_blocked is True
+    assert task.current_blocker_summary == "Waiting for API contract"
+
+    logs.resolve_blocker(owner, first.id, payload(resolution_note="API contract confirmed"))
+    db_session.refresh(task)
+    assert task.is_blocked is False
+    assert task.current_blocker_summary is None
+
+
+def test_work_log_rejects_future_dates_and_soft_delete_preserves_row(db_session):
+    owner, project = make_project(db_session)
+    task = TaskService(db_session).create_task(
+        owner,
+        project.id,
+        payload(title="Work log audit", owner_id=owner.id, participant_ids=[]),
+    )
+    logs = WorkLogService(db_session)
+
+    with pytest.raises(WorkLogValidationError):
+        logs.create_work_log(
+            owner,
+            task.id,
+            payload(work_date=date(2999, 1, 1), hours=1, content="From the future"),
+        )
+
+    work_log = logs.create_work_log(
+        owner,
+        task.id,
+        payload(work_date=date.today(), hours=2, content="Implemented persistence", commit_hash="abc123"),
+    )
+    deleted = logs.soft_delete_work_log(owner, work_log.id)
+
+    assert deleted.deleted_at is not None
+    assert logs.list_task_logs(owner, task.id) == []
+    assert logs.list_task_logs(owner, task.id, include_deleted=True)[0].id == work_log.id
