@@ -16,7 +16,7 @@ from app.services.task_service import (
 from app.services.task_state import InvalidTaskStatusTransitionError
 from app.services.team_service import TeamService
 from app.services.work_log_service import WorkLogService, WorkLogValidationError
-from tests.test_team_project import make_user, payload
+from tests.test_team_project import auth_headers, current_user_id, make_user, payload
 
 
 def test_task_domain_enums_match_phase3_contract():
@@ -287,3 +287,140 @@ def test_work_log_rejects_future_dates_and_soft_delete_preserves_row(db_session)
     assert deleted.deleted_at is not None
     assert logs.list_task_logs(owner, task.id) == []
     assert logs.list_task_logs(owner, task.id, include_deleted=True)[0].id == work_log.id
+
+
+def create_api_project(client):
+    owner_headers = auth_headers(client, "api-owner@example.com", "Owner")
+    owner_id = current_user_id(client, owner_headers)
+    team_id = client.post("/api/v1/teams", json={"name": "API Team"}, headers=owner_headers).json()["id"]
+    project_id = client.post(
+        f"/api/v1/teams/{team_id}/projects",
+        json={"name": "API Launch"},
+        headers=owner_headers,
+    ).json()["id"]
+    return owner_headers, owner_id, team_id, project_id
+
+
+def test_task_api_create_list_detail_subtask_work_log_and_blocker_flow(client):
+    owner_headers, owner_id, _team_id, project_id = create_api_project(client)
+    task = client.post(
+        f"/api/v1/projects/{project_id}/tasks",
+        json={
+            "title": "API task",
+            "owner_id": owner_id,
+            "participant_ids": [],
+            "task_type": "CODE",
+            "priority": "HIGH",
+            "labels": ["backend"],
+        },
+        headers=owner_headers,
+    )
+    task_id = task.json()["id"]
+    listed = client.get(f"/api/v1/projects/{project_id}/tasks", headers=owner_headers)
+    subtask = client.post(f"/api/v1/tasks/{task_id}/subtasks", json={"title": "Write tests"}, headers=owner_headers)
+    completed = client.patch(
+        f"/api/v1/tasks/{task_id}/subtasks/{subtask.json()['id']}",
+        json={"is_completed": True},
+        headers=owner_headers,
+    )
+    work_log = client.post(
+        f"/api/v1/tasks/{task_id}/work-logs",
+        json={
+            "work_date": date.today().isoformat(),
+            "hours": 1,
+            "content": "Blocked while wiring API",
+            "is_blocked": True,
+            "blocked_reason": "Waiting for route decision",
+            "commit_hash": "abc123",
+        },
+        headers=owner_headers,
+    )
+    blocked_board = client.get(f"/api/v1/projects/{project_id}/tasks", headers=owner_headers)
+    detail = client.get(f"/api/v1/tasks/{task_id}", headers=owner_headers)
+    resolved = client.post(
+        f"/api/v1/tasks/{task_id}/work-logs/{work_log.json()['id']}/resolve-blocker",
+        json={"resolution_note": "Route decision approved"},
+        headers=owner_headers,
+    )
+
+    assert task.status_code == 201
+    assert listed.status_code == 200
+    assert listed.json()[0]["title"] == "API task"
+    assert subtask.status_code == 201
+    assert completed.status_code == 200
+    assert completed.json()["is_completed"] is True
+    assert work_log.status_code == 201
+    assert blocked_board.json()[0]["blocker_summary"]["current_blocker_summary"] == "Waiting for route decision"
+    assert detail.status_code == 200
+    assert detail.json()["work_logs"][0]["commit_hash"] == "abc123"
+    assert detail.json()["blocker_summary"]["is_blocked"] is True
+    assert resolved.status_code == 200
+    assert resolved.json()["resolved_by_id"] == owner_id
+
+
+def test_task_api_permissions_status_codes_and_no_acceptance_routes(client):
+    owner_headers, owner_id, team_id, project_id = create_api_project(client)
+    member_headers = auth_headers(client, "api-member@example.com", "Member")
+    outsider_headers = auth_headers(client, "api-outsider@example.com", "Outsider")
+    invitation = client.post(
+        f"/api/v1/teams/{team_id}/invitations",
+        json={"email": "api-member@example.com", "role": TeamRole.TEAM_MEMBER.value},
+        headers=owner_headers,
+    )
+    client.post(f"/api/v1/teams/invitations/{invitation.json()['id']}/accept", headers=member_headers)
+    member_id = current_user_id(client, member_headers)
+    add_project_member = client.post(
+        f"/api/v1/projects/{project_id}/members",
+        json={"user_id": member_id, "role": ProjectRole.PROJECT_MEMBER.value},
+        headers=owner_headers,
+    )
+    first = client.post(
+        f"/api/v1/projects/{project_id}/tasks",
+        json={"title": "First API task", "owner_id": owner_id, "participant_ids": [member_id]},
+        headers=owner_headers,
+    )
+    second = client.post(
+        f"/api/v1/projects/{project_id}/tasks",
+        json={"title": "Second API task", "owner_id": owner_id, "participant_ids": []},
+        headers=owner_headers,
+    )
+    task_id = first.json()["id"]
+    dep = client.post(
+        f"/api/v1/tasks/{task_id}/dependencies",
+        json={"depends_on_task_id": second.json()["id"]},
+        headers=owner_headers,
+    )
+    cycle = client.post(
+        f"/api/v1/tasks/{second.json()['id']}/dependencies",
+        json={"depends_on_task_id": task_id},
+        headers=owner_headers,
+    )
+    future_log = client.post(
+        f"/api/v1/tasks/{task_id}/work-logs",
+        json={"work_date": "2999-01-01", "hours": 1, "content": "future"},
+        headers=member_headers,
+    )
+    unauthenticated = client.post(
+        f"/api/v1/tasks/{task_id}/work-logs",
+        json={"work_date": date.today().isoformat(), "hours": 1, "content": "no auth"},
+    )
+    outsider_detail = client.get(f"/api/v1/tasks/{task_id}", headers=outsider_headers)
+    missing = client.get("/api/v1/tasks/999999", headers=owner_headers)
+    forbidden_delete = client.delete(f"/api/v1/tasks/{task_id}", headers=member_headers)
+    done = client.patch(f"/api/v1/tasks/{task_id}/status", json={"status": "DONE"}, headers=member_headers)
+    deleted = client.delete(f"/api/v1/tasks/{task_id}", headers=owner_headers)
+    acceptance_submission = client.post(f"/api/v1/tasks/{task_id}/acceptance-submissions", headers=owner_headers)
+    acceptance_review = client.post(f"/api/v1/tasks/{task_id}/acceptance-reviews", headers=owner_headers)
+
+    assert add_project_member.status_code == 201
+    assert dep.status_code == 201
+    assert cycle.status_code == 409
+    assert future_log.status_code in {400, 422}
+    assert unauthenticated.status_code == 401
+    assert outsider_detail.status_code == 403
+    assert missing.status_code == 404
+    assert forbidden_delete.status_code == 403
+    assert done.status_code == 400
+    assert deleted.status_code == 200
+    assert acceptance_submission.status_code == 404
+    assert acceptance_review.status_code == 404
