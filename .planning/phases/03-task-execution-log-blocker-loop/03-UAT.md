@@ -7,15 +7,15 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:29:00Z
+updated: 2026-05-18T17:32:00Z
 ---
 
 ## Current Test
 
-number: 7
-name: Mark a task blocked from a work log
+number: 8
+name: Resolve a blocker and preserve blocker history
 expected: |
-  Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
+  Resolving a blocker requires a resolution note with at least 10 characters. After all blockers are resolved, the task is no longer shown as blocked, and the blocker timeline/history keeps the resolution note.
 awaiting: user response
 
 ## Tests
@@ -56,7 +56,9 @@ severity: major
 
 ### 7. Mark a task blocked from a work log
 expected: Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
-result: [pending]
+result: issue
+reported: "无法手动标记是否阻塞，只有这个字段"
+severity: major
 
 ### 8. Resolve a blocker and preserve blocker history
 expected: Resolving a blocker requires a resolution note with at least 10 characters. After all blockers are resolved, the task is no longer shown as blocked, and the blocker timeline/history keeps the resolution note.
@@ -70,8 +72,8 @@ result: [pending]
 
 total: 9
 passed: 1
-issues: 5
-pending: 3
+issues: 6
+pending: 2
 skipped: 0
 blocked: 0
 
@@ -114,5 +116,13 @@ blocked: 0
   reason: "User reported: 有这些内容，但是填写无法保存，日志表单不应该直接出现在抽屉，应该是填写时再出现提示"
   severity: major
   test: 6
+  artifacts: []
+  missing: []
+
+- truth: "Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary."
+  status: failed
+  reason: "User reported: 无法手动标记是否阻塞，只有这个字段"
+  severity: major
+  test: 7
   artifacts: []
   missing: []
