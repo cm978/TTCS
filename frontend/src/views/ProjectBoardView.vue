@@ -37,6 +37,19 @@
           @role-change="handleRoleChange"
           @remove="handleRemoveMember"
         />
+        <TaskDrawer
+          :open="taskStore.drawerTaskId !== null"
+          :task="taskStore.activeTask"
+          :loading="taskStore.loading"
+          :saving="taskStore.saving"
+          :error="taskStore.error"
+          @update:open="(open) => !open && taskStore.closeDrawer()"
+          @save-basics="handleSaveTask"
+          @add-subtask="handleAddSubtask"
+          @toggle-subtask="handleToggleSubtask"
+          @create-work-log="handleCreateWorkLog"
+          @resolve-blocker="handleResolveBlocker"
+        />
       </template>
     </section>
   </AppLayout>
@@ -49,6 +62,7 @@ import { useRoute } from "vue-router";
 
 import BoardColumn from "../components/project/BoardColumn.vue";
 import ProjectMemberDrawer from "../components/project/ProjectMemberDrawer.vue";
+import TaskDrawer from "../components/task/TaskDrawer.vue";
 import AppLayout from "../layouts/AppLayout.vue";
 import { useAuthStore } from "../stores/auth";
 import { useProjectStore } from "../stores/project";
@@ -56,7 +70,7 @@ import { useTaskStore } from "../stores/task";
 import { useTeamStore } from "../stores/team";
 import type { BoardColumnStatus } from "../types/project";
 import type { ProjectMember, ProjectRole } from "../types/project";
-import type { TaskBoardCard } from "../types/task";
+import type { Subtask, TaskBoardCard, TaskUpdatePayload, WorkLogCreatePayload } from "../types/task";
 
 const route = useRoute();
 const auth = useAuthStore();
@@ -121,6 +135,36 @@ async function handleCreateTask() {
     priority: "MEDIUM"
   });
   taskStore.openDrawer(task.id);
+}
+
+async function handleSaveTask(payload: TaskUpdatePayload) {
+  if (taskStore.activeTask) {
+    await taskStore.updateTask(taskStore.activeTask.id, payload);
+  }
+}
+
+async function handleAddSubtask(title: string) {
+  if (taskStore.activeTask) {
+    await taskStore.addSubtask(taskStore.activeTask.id, title);
+  }
+}
+
+async function handleToggleSubtask(subtask: Subtask, isCompleted: boolean) {
+  if (taskStore.activeTask) {
+    await taskStore.toggleSubtask(taskStore.activeTask.id, subtask, isCompleted);
+  }
+}
+
+async function handleCreateWorkLog(payload: WorkLogCreatePayload) {
+  if (taskStore.activeTask) {
+    await taskStore.createWorkLog(taskStore.activeTask.id, payload);
+  }
+}
+
+async function handleResolveBlocker(logId: number, note: string) {
+  if (taskStore.activeTask) {
+    await taskStore.resolveBlocker(taskStore.activeTask.id, logId, { resolution_note: note });
+  }
 }
 
 onMounted(() => {
