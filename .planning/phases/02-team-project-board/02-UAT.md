@@ -1,20 +1,14 @@
 ---
-status: testing
+status: diagnosed
 phase: 02-team-project-board
 source: [02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md]
 started: 2026-05-18T00:00:00+08:00
-updated: 2026-05-18T00:00:00+08:00
+updated: 2026-05-18T10:59:00+08:00
 ---
 
 ## Current Test
 
-number: 7
-name: Project Member Drawer Guards
-expected: |
-  On the project board, click `管理成员`.
-  The `项目成员` drawer should open.
-  It should use only `项目经理` and `项目成员`, show `添加项目成员`, and explain `项目至少需要保留 1 名项目经理。` or `只有项目经理可以管理项目成员。` when edits are not allowed.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -46,14 +40,14 @@ result: pass
 
 ### 7. Project Member Drawer Guards
 expected: On the project board, `管理成员` opens the `项目成员` drawer. It uses only `项目经理` and `项目成员`, shows `添加项目成员`, and explains `项目至少需要保留 1 名项目经理。` or `只有项目经理可以管理项目成员。` when edits are not allowed.
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 7
-passed: 5
+passed: 6
 issues: 1
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
