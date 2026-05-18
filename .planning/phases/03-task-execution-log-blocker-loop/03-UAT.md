@@ -7,15 +7,15 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:14:00Z
+updated: 2026-05-18T17:20:00Z
 ---
 
 ## Current Test
 
-number: 3
-name: Create a task from the project board
+number: 4
+name: Edit task basics in the drawer
 expected: |
-  Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
+  Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
 awaiting: user response
 
 ## Tests
@@ -32,7 +32,9 @@ severity: major
 
 ### 3. Create a task from the project board
 expected: Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
-result: [pending]
+result: issue
+reported: "点击创建任务，直接出现在代办栏了，还没有填写信息，保存任务也没有反应，点击创建任务，应该会有一个卡片弹出，填写信息确认后在成功创建啊"
+severity: major
 
 ### 4. Edit task basics in the drawer
 expected: Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
@@ -62,8 +64,8 @@ result: [pending]
 
 total: 9
 passed: 1
-issues: 1
-pending: 7
+issues: 2
+pending: 6
 skipped: 0
 blocked: 0
 
@@ -74,5 +76,13 @@ blocked: 0
   reason: "User reported: 截止日期无法设置，子任务进度怎么反馈完成，无法手动填写日志，没找到解除阻塞按钮，没有验收审核，通知，报表，ai  review功能接口"
   severity: major
   test: 2
+  artifacts: []
+  missing: []
+
+- truth: "Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions."
+  status: failed
+  reason: "User reported: 点击创建任务，直接出现在代办栏了，还没有填写信息，保存任务也没有反应，点击创建任务，应该会有一个卡片弹出，填写信息确认后在成功创建啊"
+  severity: major
+  test: 3
   artifacts: []
   missing: []
