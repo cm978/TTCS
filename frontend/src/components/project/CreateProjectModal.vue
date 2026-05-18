@@ -3,8 +3,8 @@
     <a-alert v-if="formError || error" type="error" show-icon class="form-alert">
       <template #message>{{ formError || error }}</template>
     </a-alert>
-    <a-form layout="vertical" @finish="handleSubmit">
-      <a-form-item label="项目名称" name="name" extra="2-100 个字符" required>
+    <a-form :model="form" :rules="rules" layout="vertical" @finish="handleSubmit">
+      <a-form-item label="项目名称" name="name" extra="2-100 个字符">
         <a-input v-model:value="form.name" :maxlength="100" autocomplete="off" />
       </a-form-item>
       <a-form-item label="项目描述" name="description" extra="最多 1000 个字符">
@@ -48,6 +48,13 @@ const emit = defineEmits<{
 
 const form = reactive({ name: "", description: "", start_date: "", end_date: "" });
 const formError = ref<string | null>(null);
+const rules = {
+  name: [
+    { required: true, message: "请输入项目名称", trigger: "blur" },
+    { min: 2, max: 100, message: "项目名称需为 2-100 个字符", trigger: "blur" }
+  ],
+  description: [{ max: 1000, message: "项目描述最多 1000 个字符", trigger: "blur" }]
+};
 
 function handleSubmit() {
   formError.value = null;
