@@ -7,26 +7,28 @@ source:
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:06:30Z
+updated: 2026-05-18T17:14:00Z
 ---
 
 ## Current Test
 
-number: 1
-name: Phase 3 local demo starts with real seeded data
+number: 3
+name: Create a task from the project board
 expected: |
-  After running the documented local setup, backend and frontend start successfully. The demo user can log in, open the project board, and see persisted Phase 3 task cards from backend seed data rather than frontend constants.
+  Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
 awaiting: user response
 
 ## Tests
 
 ### 1. Phase 3 local demo starts with real seeded data
 expected: After running the documented local setup, backend and frontend start successfully. The demo user can log in, open the project board, and see persisted Phase 3 task cards from backend seed data rather than frontend constants.
-result: [pending]
+result: pass
 
 ### 2. Board shows API-backed task cards in fixed workflow columns
 expected: The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible.
-result: [pending]
+result: issue
+reported: "截止日期无法设置，子任务进度怎么反馈完成，无法手动填写日志，没找到解除阻塞按钮，没有验收审核，通知，报表，ai  review功能接口"
+severity: major
 
 ### 3. Create a task from the project board
 expected: Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
@@ -59,10 +61,18 @@ result: [pending]
 ## Summary
 
 total: 9
-passed: 0
-issues: 0
-pending: 9
+passed: 1
+issues: 1
+pending: 7
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+- truth: "The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible."
+  status: failed
+  reason: "User reported: 截止日期无法设置，子任务进度怎么反馈完成，无法手动填写日志，没找到解除阻塞按钮，没有验收审核，通知，报表，ai  review功能接口"
+  severity: major
+  test: 2
+  artifacts: []
+  missing: []
