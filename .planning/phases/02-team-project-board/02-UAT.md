@@ -8,12 +8,12 @@ updated: 2026-05-18T00:00:00+08:00
 
 ## Current Test
 
-number: 6
-name: Team Member Role Guards
+number: 7
+name: Project Member Drawer Guards
 expected: |
-  Team member management should show `管理员` and `成员` roles.
-  Admin users should see role/removal actions.
-  When the last admin cannot be demoted or removed, the UI should explain `团队至少需要保留 1 名管理员。`.
+  On the project board, click `管理成员`.
+  The `项目成员` drawer should open.
+  It should use only `项目经理` and `项目成员`, show `添加项目成员`, and explain `项目至少需要保留 1 名项目经理。` or `只有项目经理可以管理项目成员。` when edits are not allowed.
 awaiting: user response
 
 ## Tests
@@ -42,9 +42,7 @@ result: pass
 
 ### 6. Team Member Role Guards
 expected: Team member management shows `管理员` and `成员` roles, supports role/removal actions for admins, and explains `团队至少需要保留 1 名管理员。` when the last admin cannot be demoted or removed.
-result: issue
-reported: "已经接受的，团队成员怎么还保留，这样一个成员的信息出现两次"
-severity: major
+result: pass
 
 ### 7. Project Member Drawer Guards
 expected: On the project board, `管理成员` opens the `项目成员` drawer. It uses only `项目经理` and `项目成员`, shows `添加项目成员`, and explains `项目至少需要保留 1 名项目经理。` or `只有项目经理可以管理项目成员。` when edits are not allowed.
@@ -53,8 +51,8 @@ result: [pending]
 ## Summary
 
 total: 7
-passed: 4
-issues: 2
+passed: 5
+issues: 1
 pending: 1
 skipped: 0
 blocked: 0
@@ -88,7 +86,7 @@ blocked: 0
     - "Bind a-form to the reactive form model and provide explicit validation rules for name/description."
   debug_session: ""
 - truth: "Accepted invitations should not duplicate joined team members in the member management table"
-  status: failed
+  status: resolved
   reason: "User reported: 已经接受的，团队成员怎么还保留，这样一个成员的信息出现两次"
   severity: major
   test: 6
