@@ -8,15 +8,15 @@ source:
   - 03-04-SUMMARY.md
   - 03-05-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-19T00:24:00Z
+updated: 2026-05-19T00:28:00Z
 ---
 
 ## Current Test
 
-number: 6
-name: Record a normal work log with optional code references
+number: 7
+name: Mark a task blocked from a work log
 expected: |
-  The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
+  Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
 awaiting: user response
 
 ## Tests
@@ -51,7 +51,9 @@ severity: major
 
 ### 6. Record a normal work log with optional code references
 expected: The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
-result: [pending]
+result: issue
+reported: "会出现，工作日期和工作时间无法填写或显示，可选代码引用字段是否不会触发真实 Git 集成是指什么"
+severity: major
 
 ### 7. Mark a task blocked from a work log
 expected: Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
@@ -69,8 +71,8 @@ result: pass
 
 total: 9
 passed: 3
-issues: 4
-pending: 2
+issues: 5
+pending: 1
 skipped: 0
 blocked: 0
 
@@ -105,6 +107,14 @@ blocked: 0
   reason: "User reported during retest: 可以添加，但是没有勾选，且显示太单薄了，只有几行文字"
   severity: major
   test: 5
+  artifacts: []
+  missing: []
+
+- truth: "The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration."
+  status: failed
+  reason: "User reported during retest: 会出现，工作日期和工作时间无法填写或显示，可选代码引用字段是否不会触发真实 Git 集成是指什么"
+  severity: major
+  test: 6
   artifacts: []
   missing: []
 
