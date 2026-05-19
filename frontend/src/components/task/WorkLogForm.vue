@@ -1,11 +1,15 @@
 <template>
-  <a-form layout="vertical" class="work-log-form" @finish="handleSubmit">
-    <a-form-item v-if="mode === 'log'" label="工作日期" required>
-      <a-date-picker v-model:value="workDate" :disabled-date="disableFutureDate" />
-    </a-form-item>
-    <a-form-item v-if="mode === 'log'" label="工时" required>
-      <a-input-number v-model:value="form.hours" :min="0.5" :max="24" :step="0.5" />
-    </a-form-item>
+  <div class="work-log-form">
+    <div v-if="mode === 'log'" class="form-grid">
+      <label class="field">
+        <span>工作日期 <b>*</b></span>
+        <input v-model="form.work_date" class="native-input" type="date" />
+      </label>
+      <label class="field">
+        <span>工时 <b>*</b></span>
+        <input v-model.number="form.hours" class="native-input" type="number" min="0.5" max="24" step="0.5" />
+      </label>
+    </div>
     <a-form-item v-if="mode === 'log'" label="工作类型" required>
       <a-input v-model:value="form.work_type" />
     </a-form-item>
@@ -19,21 +23,24 @@
     <a-form-item v-if="form.is_blocked" label="阻塞原因" required extra="至少 10 个字符">
       <a-textarea v-model:value="form.blocked_reason" :rows="2" />
     </a-form-item>
-    <a-form-item v-if="mode === 'log'" label="Commit Hash（可选）">
-      <a-input v-model:value="form.commit_hash" />
-    </a-form-item>
-    <a-form-item v-if="mode === 'log'" label="分支名称（可选）">
-      <a-input v-model:value="form.branch_name" />
-    </a-form-item>
-    <a-form-item v-if="mode === 'log'" label="仓库地址（可选）">
-      <a-input v-model:value="form.repository_url" />
-    </a-form-item>
-    <a-button type="primary" html-type="submit" :loading="saving">{{ mode === "blocker" ? "确认标记阻塞" : "记录工作日志" }}</a-button>
-  </a-form>
+    <section v-if="mode === 'log'" class="code-evidence">
+      <h4>代码证据（可选）</h4>
+      <p>仅手动记录，不会连接 Git 平台或自动校验提交。</p>
+      <a-form-item label="Commit Hash">
+        <a-input v-model:value="form.commit_hash" />
+      </a-form-item>
+      <a-form-item label="分支名称">
+        <a-input v-model:value="form.branch_name" />
+      </a-form-item>
+      <a-form-item label="仓库地址">
+        <a-input v-model:value="form.repository_url" />
+      </a-form-item>
+    </section>
+    <a-button type="primary" :loading="saving" @click="handleSubmit">{{ mode === "blocker" ? "确认标记阻塞" : "记录工作日志" }}</a-button>
+  </div>
 </template>
 
 <script setup lang="ts">
-import dayjs, { type Dayjs } from "dayjs";
 import { ref, watch } from "vue";
 
 import type { WorkLogCreatePayload } from "../../types/task";
@@ -41,9 +48,9 @@ import type { WorkLogCreatePayload } from "../../types/task";
 const props = withDefaults(defineProps<{ saving: boolean; mode?: "log" | "blocker" }>(), { mode: "log" });
 const emit = defineEmits<{ submit: [payload: WorkLogCreatePayload] }>();
 
-const workDate = ref<Dayjs>(dayjs());
 const error = ref("");
 const form = ref({
+  work_date: new Date().toISOString().slice(0, 10),
   hours: 1,
   content: "",
   work_type: "GENERAL",
@@ -63,12 +70,16 @@ watch(
   { immediate: true }
 );
 
-function disableFutureDate(current: Dayjs) {
-  return current && current.isAfter(dayjs(), "day");
-}
-
 function handleSubmit() {
   error.value = "";
+  if (props.mode === "log" && !form.value.work_date) {
+    error.value = "请填写工作日期。";
+    return;
+  }
+  if (props.mode === "log" && (form.value.hours < 0.5 || form.value.hours > 24 || (form.value.hours * 2) % 1 !== 0)) {
+    error.value = "工时必须在 0.5 到 24 小时之间，并以 0.5 小时递增。";
+    return;
+  }
   const content = props.mode === "blocker" ? "标记任务阻塞" : form.value.content.trim();
   if (!content) {
     error.value = "请填写工作内容。";
@@ -79,7 +90,7 @@ function handleSubmit() {
     return;
   }
   emit("submit", {
-    work_date: workDate.value.format("YYYY-MM-DD"),
+    work_date: form.value.work_date,
     hours: form.value.hours,
     content,
     work_type: form.value.work_type,
@@ -98,6 +109,60 @@ function handleSubmit() {
 <style scoped>
 .work-log-form {
   display: grid;
-  gap: 4px;
+  gap: 12px;
+}
+
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.form-grid > * {
+  flex: 1 1 180px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.field b {
+  color: var(--color-danger);
+}
+
+.native-input {
+  min-height: 40px;
+  padding: 6px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.native-input:focus {
+  border-color: var(--color-primary);
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.code-evidence {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.code-evidence h4,
+.code-evidence p {
+  margin: 0;
+}
+
+.code-evidence p {
+  color: var(--color-text-muted);
+  font-size: 14px;
 }
 </style>

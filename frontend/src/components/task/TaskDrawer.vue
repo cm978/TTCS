@@ -14,7 +14,7 @@
         <a-tag v-if="task.is_blocked" color="warning">阻塞中</a-tag>
       </div>
 
-      <a-form layout="vertical" @finish="handleSaveBasics">
+      <div class="task-form">
         <a-alert v-if="actionMessage" :type="actionMessage.type" show-icon class="drawer-alert">
           <template #message>{{ actionMessage.text }}</template>
         </a-alert>
@@ -41,12 +41,19 @@
             </a-select>
           </a-form-item>
         </div>
-        <a-form-item label="截止日期">
-          <a-date-picker v-model:value="dueDate" />
-        </a-form-item>
+        <div class="form-grid">
+          <label class="field">
+            <span>开始日期</span>
+            <input v-model="basicForm.start_date" class="native-input" type="date" />
+          </label>
+          <label class="field">
+            <span>截止日期</span>
+            <input v-model="basicForm.due_date" class="native-input" type="date" />
+          </label>
+        </div>
         <p class="helper">每个任务最多 5 名参与者，Owner 会自动计入。</p>
-        <a-button type="primary" html-type="submit" :loading="saving">保存任务</a-button>
-      </a-form>
+        <a-button type="primary" :loading="saving" @click="handleSaveBasics">保存任务</a-button>
+      </div>
 
       <SubtaskChecklist
         :subtasks="task.subtasks"
@@ -95,7 +102,6 @@
 </template>
 
 <script setup lang="ts">
-import dayjs, { type Dayjs } from "dayjs";
 import { computed, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
@@ -106,15 +112,21 @@ import WorkLogForm from "./WorkLogForm.vue";
 const props = defineProps<{ open: boolean; task: TaskDetail | null; loading: boolean; saving: boolean; error: string | null }>();
 const emit = defineEmits<{
   "update:open": [value: boolean];
-  "save-basics": [payload: { title: string; description: string | null; task_type: TaskType; priority: TaskPriority; due_date: string | null }];
+  "save-basics": [payload: { title: string; description: string | null; task_type: TaskType; priority: TaskPriority; start_date?: string | null; due_date: string | null }];
   "add-subtask": [title: string];
   "toggle-subtask": [subtask: Subtask, isCompleted: boolean];
   "create-work-log": [payload: WorkLogCreatePayload];
   "resolve-blocker": [logId: number, note: string];
 }>();
 const router = useRouter();
-const basicForm = reactive({ title: "", description: "", task_type: "GENERAL" as TaskType, priority: "MEDIUM" as TaskPriority });
-const dueDate = ref<Dayjs | null>(null);
+const basicForm = reactive({
+  title: "",
+  description: "",
+  task_type: "GENERAL" as TaskType,
+  priority: "MEDIUM" as TaskPriority,
+  start_date: "",
+  due_date: ""
+});
 const resolutionNotes = reactive<Record<number, string>>({});
 const workLogOpen = ref(false);
 const blockerOpen = ref(false);
@@ -134,7 +146,8 @@ watch(
     basicForm.description = task.description ?? "";
     basicForm.task_type = task.task_type;
     basicForm.priority = task.priority;
-    dueDate.value = task.due_date ? dayjs(task.due_date) : null;
+    basicForm.start_date = "";
+    basicForm.due_date = task.due_date ?? "";
     actionMessage.value = null;
   },
   { immediate: true }
@@ -144,7 +157,8 @@ function handleSaveBasics() {
   emit("save-basics", {
     ...basicForm,
     description: basicForm.description || null,
-    due_date: dueDate.value ? dueDate.value.format("YYYY-MM-DD") : null
+    start_date: basicForm.start_date || null,
+    due_date: basicForm.due_date || null
   });
 }
 
@@ -187,6 +201,7 @@ function typeLabel(type: TaskType) {
 
 <style scoped>
 .task-drawer,
+.task-form,
 .drawer-section,
 .blocker-row {
   display: grid;
@@ -227,6 +242,27 @@ function typeLabel(type: TaskType) {
 
 .drawer-alert {
   margin-bottom: 8px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.native-input {
+  min-height: 40px;
+  padding: 6px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.native-input:focus {
+  border-color: var(--color-primary);
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
 }
 
 .blocker-row {

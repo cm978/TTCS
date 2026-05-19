@@ -8,10 +8,10 @@
     </span>
     <span class="task-meta">
       <span><UserRound :size="14" /> {{ task.owner?.display_name || task.owner?.email || "未命名 Owner" }}</span>
-      <span>参与者 {{ task.participants.length }}/5</span>
+      <span>{{ participantLabel }}</span>
     </span>
     <span class="task-meta">
-      <span><CalendarDays :size="14" /> {{ task.due_date || "未设截止日" }}</span>
+      <span><CalendarDays :size="14" /> {{ task.due_date || "未设置截止日期" }}</span>
       <span>{{ task.subtask_completed }}/{{ task.subtask_total }} 子任务</span>
     </span>
     <span class="task-footer">
@@ -31,6 +31,16 @@ const props = defineProps<{ task: TaskBoardCard }>();
 const emit = defineEmits<{ open: [task: TaskBoardCard] }>();
 
 const isBlocked = computed(() => props.task.blocker_summary?.is_blocked || props.task.is_blocked);
+const participantLabel = computed(() => {
+  const names = props.task.participants
+    .map((participant) => participant.user?.display_name || participant.user?.email)
+    .filter(Boolean) as string[];
+  if (names.length === 0) {
+    return "暂无参与者";
+  }
+  const visible = names.slice(0, 2).join("、");
+  return names.length > 2 ? `${visible} 等 ${names.length} 人` : visible;
+});
 const logState = computed(() => {
   if (!props.task.latest_work_log_at) {
     return "待写日志";

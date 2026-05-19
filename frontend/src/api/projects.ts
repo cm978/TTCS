@@ -18,6 +18,11 @@ export async function listProjects(teamId?: number): Promise<Project[]> {
   return data;
 }
 
+export async function getProject(projectId: number): Promise<Project> {
+  const { data } = await apiClient.get<ProjectBoard>(`/projects/${projectId}/board`);
+  return data.project;
+}
+
 export async function getProjectBoard(projectId: number): Promise<ProjectBoard> {
   const { data } = await apiClient.get<ProjectBoard>(`/projects/${projectId}/board`);
   return data;

@@ -25,11 +25,11 @@
         </div>
         <RouterLink v-if="boardTarget" class="nav-item" active-class="nav-item--active" :to="boardTarget">
           <FolderKanban :size="18" aria-hidden="true" />
-          <span>项目看板</span>
+          <span>项目详情</span>
         </RouterLink>
         <div v-else class="nav-item nav-item--disabled" aria-disabled="true">
           <FolderKanban :size="18" aria-hidden="true" />
-          <span>项目看板</span>
+          <span>项目详情</span>
         </div>
       </nav>
     </a-layout-sider>
@@ -73,7 +73,7 @@ const teamMembersTarget = computed(() =>
 );
 const boardTarget = computed(() => {
   const projectId = projectStore.activeBoard?.project.id ?? projectStore.projects[0]?.id;
-  return projectId ? { name: "project-board", params: { projectId } } : null;
+  return projectId ? { name: "project-detail", params: { projectId } } : null;
 });
 
 function handleLogout() {

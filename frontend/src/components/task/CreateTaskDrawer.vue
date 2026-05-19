@@ -4,7 +4,7 @@
     <a-alert v-if="error" class="form-alert" type="error" show-icon>
       <template #message>{{ error }}</template>
     </a-alert>
-    <a-form layout="vertical" class="create-task-form" @finish="handleSubmit">
+    <div class="create-task-form">
       <a-form-item label="任务标题" required>
         <a-input v-model:value="form.title" placeholder="输入任务标题" />
       </a-form-item>
@@ -28,19 +28,26 @@
           </a-select>
         </a-form-item>
       </div>
-      <a-form-item label="截止日期">
-        <a-date-picker v-model:value="dueDate" :disabled-date="disablePastDate" />
-      </a-form-item>
+      <div class="form-grid">
+        <label class="field">
+          <span>开始日期</span>
+          <input v-model="form.start_date" class="native-input" type="date" />
+        </label>
+        <label class="field">
+          <span>截止日期</span>
+          <input v-model="form.due_date" class="native-input" type="date" />
+        </label>
+      </div>
+      <p v-if="localError" class="form-error">{{ localError }}</p>
       <footer class="drawer-actions">
         <a-button @click="handleClose">取消</a-button>
-        <a-button type="primary" html-type="submit" :loading="saving" :disabled="form.title.trim().length < 2">确认创建</a-button>
+        <a-button type="primary" :loading="saving" :disabled="form.title.trim().length < 2" @click="handleSubmit">确认创建</a-button>
       </footer>
-    </a-form>
+    </div>
   </a-drawer>
 </template>
 
 <script setup lang="ts">
-import dayjs, { type Dayjs } from "dayjs";
 import { reactive, ref, watch } from "vue";
 
 import type { TaskCreatePayload, TaskPriority, TaskType } from "../../types/task";
@@ -48,12 +55,14 @@ import type { TaskCreatePayload, TaskPriority, TaskType } from "../../types/task
 const props = defineProps<{ open: boolean; saving: boolean; ownerId: number | null; error: string | null }>();
 const emit = defineEmits<{ "update:open": [value: boolean]; submit: [payload: TaskCreatePayload] }>();
 
-const dueDate = ref<Dayjs | null>(null);
+const localError = ref("");
 const form = reactive({
   title: "",
   description: "",
   task_type: "GENERAL" as TaskType,
-  priority: "MEDIUM" as TaskPriority
+  priority: "MEDIUM" as TaskPriority,
+  start_date: "",
+  due_date: ""
 });
 
 watch(
@@ -65,16 +74,14 @@ watch(
   }
 );
 
-function disablePastDate(current: Dayjs) {
-  return current && current.isBefore(dayjs(), "day");
-}
-
 function resetForm() {
   form.title = "";
   form.description = "";
   form.task_type = "GENERAL";
   form.priority = "MEDIUM";
-  dueDate.value = null;
+  form.start_date = "";
+  form.due_date = "";
+  localError.value = "";
 }
 
 function handleClose() {
@@ -84,8 +91,14 @@ function handleClose() {
 function handleSubmit() {
   const title = form.title.trim();
   if (!props.ownerId || title.length < 2) {
+    localError.value = "请至少填写 2 个字符的任务标题。";
     return;
   }
+  if (form.start_date && form.due_date && form.due_date < form.start_date) {
+    localError.value = "截止日期不能早于开始日期。";
+    return;
+  }
+  localError.value = "";
   emit("submit", {
     title,
     description: form.description.trim() || null,
@@ -93,7 +106,8 @@ function handleSubmit() {
     participant_ids: [],
     task_type: form.task_type,
     priority: form.priority,
-    due_date: dueDate.value ? dueDate.value.format("YYYY-MM-DD") : null
+    start_date: form.start_date || null,
+    due_date: form.due_date || null
   });
 }
 </script>
@@ -120,5 +134,32 @@ function handleSubmit() {
 
 .form-alert {
   margin-bottom: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.native-input {
+  min-height: 40px;
+  padding: 6px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.native-input:focus {
+  border-color: var(--color-primary);
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.form-error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 14px;
 }
 </style>

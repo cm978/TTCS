@@ -4,6 +4,7 @@ import {
   acceptInvitation,
   cancelInvitation,
   createTeam,
+  getTeam,
   inviteTeamMember,
   listMyInvitations,
   listTeamInvitations,
@@ -23,6 +24,7 @@ import type {
 
 interface TeamState {
   teams: Team[];
+  activeTeam: Team | null;
   selectedTeamId: number | null;
   membersByTeam: Record<number, TeamMember[]>;
   invitationsByTeam: Record<number, TeamInvitation[]>;
@@ -38,6 +40,7 @@ function teamError(fallback: string): string {
 export const useTeamStore = defineStore("team", {
   state: (): TeamState => ({
     teams: [],
+    activeTeam: null,
     selectedTeamId: null,
     membersByTeam: {},
     invitationsByTeam: {},
@@ -80,6 +83,22 @@ export const useTeamStore = defineStore("team", {
         return team;
       } catch {
         this.error = teamError("创建团队失败。请检查团队名称后重试。");
+        throw new Error(this.error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async loadTeam(teamId: number) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const team = await getTeam(teamId);
+        this.activeTeam = team;
+        this.selectedTeamId = team.id;
+        this.teams = [team, ...this.teams.filter((item) => item.id !== team.id)];
+        return team;
+      } catch {
+        this.error = teamError("团队详情加载失败。请稍后重试。");
         throw new Error(this.error);
       } finally {
         this.loading = false;

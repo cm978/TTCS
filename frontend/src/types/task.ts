@@ -107,6 +107,7 @@ export interface TaskCreatePayload {
   description?: string | null;
   task_type?: TaskType;
   priority?: TaskPriority;
+  start_date?: string | null;
   due_date?: string | null;
   owner_id: number;
   participant_ids?: number[];
@@ -120,6 +121,7 @@ export interface TaskUpdatePayload {
   description?: string | null;
   task_type?: TaskType;
   priority?: TaskPriority;
+  start_date?: string | null;
   due_date?: string | null;
   owner_id?: number;
   column_id?: number | null;

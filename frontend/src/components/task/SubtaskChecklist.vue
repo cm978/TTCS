@@ -5,13 +5,16 @@
       <span>{{ completed }}/{{ subtasks.length }} 已完成</span>
     </header>
     <div v-if="subtasks.length === 0" class="empty">暂无子任务</div>
-    <label v-for="subtask in subtasks" :key="subtask.id" class="subtask-row">
-      <a-checkbox
+    <label v-for="subtask in subtasks" :key="subtask.id" class="subtask-row" :class="{ 'subtask-row--done': subtask.is_completed }">
+      <input
+        class="subtask-checkbox"
+        type="checkbox"
         :checked="subtask.is_completed"
         :disabled="updatingId === subtask.id"
         @change="handleToggle(subtask, $event)"
       />
-      <span>{{ subtask.title }}</span>
+      <span class="subtask-title">{{ subtask.title }}</span>
+      <span class="subtask-status">{{ subtask.is_completed ? "已完成" : "未完成" }}</span>
     </label>
     <div class="add-row">
       <a-input v-model:value="newTitle" placeholder="新增子任务" @press-enter="handleAdd" />
@@ -39,8 +42,8 @@ function handleAdd() {
   newTitle.value = "";
 }
 
-function handleToggle(subtask: Subtask, event: { target?: { checked?: boolean } }) {
-  emit("toggle", subtask, Boolean(event.target?.checked));
+function handleToggle(subtask: Subtask, event: Event) {
+  emit("toggle", subtask, Boolean((event.target as HTMLInputElement | null)?.checked));
 }
 </script>
 
@@ -51,7 +54,6 @@ function handleToggle(subtask: Subtask, event: { target?: { checked?: boolean } 
 }
 
 header,
-.subtask-row,
 .add-row {
   display: flex;
   align-items: center;
@@ -72,7 +74,35 @@ header span,
 }
 
 .subtask-row {
-  justify-content: flex-start;
-  min-height: 36px;
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.subtask-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.subtask-title {
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.subtask-status {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.subtask-row--done .subtask-title {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
 }
 </style>

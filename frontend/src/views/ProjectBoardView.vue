@@ -13,6 +13,8 @@
             <p>{{ board.members.length }} 名项目成员 · {{ managerCount }} 名项目经理</p>
           </div>
           <div class="board-actions">
+            <RouterLink :to="{ name: 'project-detail', params: { projectId } }"><a-button>项目详情</a-button></RouterLink>
+            <RouterLink :to="{ name: 'team-detail', params: { teamId: board.project.team_id } }"><a-button>团队详情</a-button></RouterLink>
             <a-button :icon="h(UsersRound, { size: 16 })" @click="memberDrawerOpen = true">管理成员</a-button>
             <a-button type="primary" @click="createDrawerOpen = true">创建任务</a-button>
           </div>

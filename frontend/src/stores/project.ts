@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import {
   addProjectMember,
   createProject,
+  getProject,
   getProjectBoard,
   listProjectMembers,
   listProjects,
@@ -20,6 +21,7 @@ import type {
 
 interface ProjectState {
   projects: Project[];
+  activeProject: Project | null;
   activeBoard: ProjectBoard | null;
   membersByProject: Record<number, ProjectMember[]>;
   loading: boolean;
@@ -33,6 +35,7 @@ function projectError(fallback: string): string {
 export const useProjectStore = defineStore("project", {
   state: (): ProjectState => ({
     projects: [],
+    activeProject: null,
     activeBoard: null,
     membersByProject: {},
     loading: false,
@@ -74,10 +77,26 @@ export const useProjectStore = defineStore("project", {
       this.error = null;
       try {
         this.activeBoard = await getProjectBoard(projectId);
+        this.activeProject = this.activeBoard.project;
         this.membersByProject[projectId] = this.activeBoard.members;
         return this.activeBoard;
       } catch {
         this.error = projectError("项目看板加载失败。请稍后重试。");
+        throw new Error(this.error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async loadProject(projectId: number) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const project = await getProject(projectId);
+        this.activeProject = project;
+        this.projects = [project, ...this.projects.filter((item) => item.id !== project.id)];
+        return project;
+      } catch {
+        this.error = projectError("项目详情加载失败。请稍后重试。");
         throw new Error(this.error);
       } finally {
         this.loading = false;

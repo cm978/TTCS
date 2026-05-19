@@ -135,9 +135,11 @@ describe("task execution UI", () => {
     expect(wrapper.text()).toContain("工作类型");
     expect(wrapper.text()).toContain("工作内容");
     expect(wrapper.text()).toContain("同时标记为阻塞");
-    expect(wrapper.text()).toContain("Commit Hash（可选）");
-    expect(wrapper.text()).toContain("分支名称（可选）");
-    expect(wrapper.text()).toContain("仓库地址（可选）");
+    expect(wrapper.text()).toContain("代码证据（可选）");
+    expect(wrapper.text()).toContain("仅手动记录，不会连接 Git 平台或自动校验提交。");
+    expect(wrapper.text()).toContain("Commit Hash");
+    expect(wrapper.text()).toContain("分支名称");
+    expect(wrapper.text()).toContain("仓库地址");
   });
 
   it("opens a confirmed create-task drawer before submitting a task", async () => {
@@ -184,14 +186,14 @@ describe("task execution UI", () => {
       },
       global: {
         stubs: {
-          "a-checkbox": { template: "<input type='checkbox' @change=\"$emit('change', { target: { checked: true } })\" />" },
           "a-input": { template: "<input />" },
           "a-button": { template: "<button><slot /></button>" }
         }
       }
     });
 
-    await wrapper.find("input[type='checkbox']").trigger("change");
+    const checkbox = wrapper.find("input[type='checkbox']");
+    await checkbox.setValue(true);
 
     expect(wrapper.emitted("toggle")?.[0]?.[1]).toBe(true);
   });

@@ -59,7 +59,7 @@
                 @click="selectTeam(team.id)"
               >
                 <span>{{ team.name }}</span>
-                <RouterLink :to="{ name: 'team-members', params: { teamId: team.id } }">成员管理</RouterLink>
+                <RouterLink :to="{ name: 'team-detail', params: { teamId: team.id } }">查看详情</RouterLink>
               </button>
             </div>
           </section>
@@ -80,7 +80,7 @@
                 v-for="project in visibleProjects"
                 :key="project.id"
                 class="project-row"
-                :to="{ name: 'project-board', params: { projectId: project.id } }"
+                :to="{ name: 'project-detail', params: { projectId: project.id } }"
               >
                 <FolderKanban :size="18" aria-hidden="true" />
                 <span>{{ project.name }}</span>
