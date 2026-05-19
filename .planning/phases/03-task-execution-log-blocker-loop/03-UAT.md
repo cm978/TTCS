@@ -8,15 +8,15 @@ source:
   - 03-04-SUMMARY.md
   - 03-05-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-19T00:05:37Z
+updated: 2026-05-19T00:12:00Z
 ---
 
 ## Current Test
 
-number: 2
-name: Board shows API-backed task cards in fixed workflow columns
+number: 3
+name: Create a task from the project board
 expected: |
-  The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible.
+  Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
 awaiting: user response
 
 ## Tests
@@ -27,7 +27,9 @@ result: pass
 
 ### 2. Board shows API-backed task cards in fixed workflow columns
 expected: The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible.
-result: [pending]
+result: issue
+reported: "1能看到 2 没有显示参与者是谁，截止日期没有显示，这应该是在创建任务的时候就该创建的内容 3 表单中这些是什么 4没有"
+severity: major
 
 ### 3. Create a task from the project board
 expected: Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
@@ -61,12 +63,21 @@ result: pass
 
 total: 9
 passed: 3
-issues: 0
-pending: 6
+issues: 1
+pending: 5
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+- truth: "The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible."
+  status: failed
+  reason: "User reported during retest: 1能看到 2 没有显示参与者是谁，截止日期没有显示，这应该是在创建任务的时候就该创建的内容 3 表单中这些是什么 4没有"
+  severity: major
+  test: 2
+  artifacts: []
+  missing: []
+
 
 - truth: "The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible."
   status: failed
