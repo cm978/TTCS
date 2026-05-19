@@ -1,18 +1,23 @@
 ---
-status: complete
+status: testing
 phase: 03-task-execution-log-blocker-loop
 source:
   - 03-01-SUMMARY.md
   - 03-02-SUMMARY.md
   - 03-03-SUMMARY.md
   - 03-04-SUMMARY.md
+  - 03-05-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-18T17:38:00Z
+updated: 2026-05-19T00:05:37Z
 ---
 
 ## Current Test
 
-[testing complete]
+number: 2
+name: Board shows API-backed task cards in fixed workflow columns
+expected: |
+  The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible.
+awaiting: user response
 
 ## Tests
 
@@ -22,39 +27,27 @@ result: pass
 
 ### 2. Board shows API-backed task cards in fixed workflow columns
 expected: The project board loads real task cards grouped by status column. Cards show title, type, priority, owner/participant signal, due date, subtask progress, and lightweight log/blocker state. No Phase 4 acceptance review, Phase 5 notification/report, real Git sync, or AI review controls are visible.
-result: issue
-reported: "截止日期无法设置，子任务进度怎么反馈完成，无法手动填写日志，没找到解除阻塞按钮，没有验收审核，通知，报表，ai  review功能接口"
-severity: major
+result: [pending]
 
 ### 3. Create a task from the project board
 expected: Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
-result: issue
-reported: "点击创建任务，直接出现在代办栏了，还没有填写信息，保存任务也没有反应，点击创建任务，应该会有一个卡片弹出，填写信息确认后在成功创建啊"
-severity: major
+result: [pending]
 
 ### 4. Edit task basics in the drawer
 expected: Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
-result: issue
-reported: "会出现抽屉，不能保存和刷新"
-severity: major
+result: [pending]
 
 ### 5. Add and complete one-level subtasks
 expected: Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
-result: issue
-reported: "可以添加子任务，但是不能勾选取消和选择完成"
-severity: major
+result: [pending]
 
 ### 6. Record a normal work log with optional code references
 expected: The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
-result: issue
-reported: "有这些内容，但是填写无法保存，日志表单不应该直接出现在抽屉，应该是填写时再出现提示"
-severity: major
+result: [pending]
 
 ### 7. Mark a task blocked from a work log
 expected: Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
-result: issue
-reported: "无法手动标记是否阻塞，只有这个字段"
-severity: major
+result: [pending]
 
 ### 8. Resolve a blocker and preserve blocker history
 expected: Resolving a blocker requires a resolution note with at least 10 characters. After all blockers are resolved, the task is no longer shown as blocked, and the blocker timeline/history keeps the resolution note.
@@ -68,8 +61,8 @@ result: pass
 
 total: 9
 passed: 3
-issues: 6
-pending: 0
+issues: 0
+pending: 6
 skipped: 0
 blocked: 0
 
