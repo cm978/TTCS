@@ -1,5 +1,5 @@
 ---
-status: testing
+status: complete
 phase: 03-task-execution-log-blocker-loop
 source:
   - 03-01-SUMMARY.md
@@ -8,16 +8,12 @@ source:
   - 03-04-SUMMARY.md
   - 03-05-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-19T00:28:00Z
+updated: 2026-05-19T00:31:00Z
 ---
 
 ## Current Test
 
-number: 7
-name: Mark a task blocked from a work log
-expected: |
-  Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -57,7 +53,9 @@ severity: major
 
 ### 7. Mark a task blocked from a work log
 expected: Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary.
-result: [pending]
+result: issue
+reported: "确认提交阻塞没有反应"
+severity: major
 
 ### 8. Resolve a blocker and preserve blocker history
 expected: Resolving a blocker requires a resolution note with at least 10 characters. After all blockers are resolved, the task is no longer shown as blocked, and the blocker timeline/history keeps the resolution note.
@@ -71,8 +69,8 @@ result: pass
 
 total: 9
 passed: 3
-issues: 5
-pending: 1
+issues: 6
+pending: 0
 skipped: 0
 blocked: 0
 
@@ -115,6 +113,14 @@ blocked: 0
   reason: "User reported during retest: 会出现，工作日期和工作时间无法填写或显示，可选代码引用字段是否不会触发真实 Git 集成是指什么"
   severity: major
   test: 6
+  artifacts: []
+  missing: []
+
+- truth: "Marking a work log as blocking requires a blocker reason with at least 10 characters. After saving, the task card/detail shows the blocked state and current blocker summary."
+  status: failed
+  reason: "User reported during retest: 确认提交阻塞没有反应"
+  severity: major
+  test: 7
   artifacts: []
   missing: []
 
