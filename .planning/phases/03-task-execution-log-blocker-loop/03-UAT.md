@@ -8,15 +8,15 @@ source:
   - 03-04-SUMMARY.md
   - 03-05-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-19T00:21:00Z
+updated: 2026-05-19T00:24:00Z
 ---
 
 ## Current Test
 
-number: 5
-name: Add and complete one-level subtasks
+number: 6
+name: Record a normal work log with optional code references
 expected: |
-  Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
+  The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
 awaiting: user response
 
 ## Tests
@@ -45,7 +45,9 @@ severity: major
 
 ### 5. Add and complete one-level subtasks
 expected: Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
-result: [pending]
+result: issue
+reported: "可以添加，但是没有勾选，且显示太单薄了，只有几行文字"
+severity: major
 
 ### 6. Record a normal work log with optional code references
 expected: The work-log form exposes visible fields for work date, hours, work type, content, and optional commit/branch/repository text. Future dates or invalid hours are rejected. A saved log appears in the task history without triggering any live Git integration.
@@ -67,8 +69,8 @@ result: pass
 
 total: 9
 passed: 3
-issues: 3
-pending: 3
+issues: 4
+pending: 2
 skipped: 0
 blocked: 0
 
@@ -95,6 +97,14 @@ blocked: 0
   reason: "User reported during retest: 点击保存没有反应"
   severity: major
   test: 4
+  artifacts: []
+  missing: []
+
+- truth: "Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks."
+  status: failed
+  reason: "User reported during retest: 可以添加，但是没有勾选，且显示太单薄了，只有几行文字"
+  severity: major
+  test: 5
   artifacts: []
   missing: []
 
