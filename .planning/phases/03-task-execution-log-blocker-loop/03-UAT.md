@@ -8,15 +8,15 @@ source:
   - 03-04-SUMMARY.md
   - 03-05-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-19T00:18:00Z
+updated: 2026-05-19T00:21:00Z
 ---
 
 ## Current Test
 
-number: 4
-name: Edit task basics in the drawer
+number: 5
+name: Add and complete one-level subtasks
 expected: |
-  Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
+  Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
 awaiting: user response
 
 ## Tests
@@ -39,7 +39,9 @@ severity: major
 
 ### 4. Edit task basics in the drawer
 expected: Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
-result: [pending]
+result: issue
+reported: "点击保存没有反应"
+severity: major
 
 ### 5. Add and complete one-level subtasks
 expected: Adding a subtask displays it in the task drawer/detail checklist. Checking or unchecking it updates completed/total progress. The UI does not expose nested subtasks.
@@ -65,8 +67,8 @@ result: pass
 
 total: 9
 passed: 3
-issues: 2
-pending: 4
+issues: 3
+pending: 3
 skipped: 0
 blocked: 0
 
@@ -85,6 +87,14 @@ blocked: 0
   reason: "User reported during retest: 创建任务会弹出表单，没有截止和起始时间的设置，点击创建任务没有反应"
   severity: major
   test: 3
+  artifacts: []
+  missing: []
+
+- truth: "Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable."
+  status: failed
+  reason: "User reported during retest: 点击保存没有反应"
+  severity: major
+  test: 4
   artifacts: []
   missing: []
 
