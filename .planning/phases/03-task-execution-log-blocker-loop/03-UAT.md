@@ -8,15 +8,15 @@ source:
   - 03-04-SUMMARY.md
   - 03-05-SUMMARY.md
 started: 2026-05-18T16:58:34Z
-updated: 2026-05-19T00:12:00Z
+updated: 2026-05-19T00:18:00Z
 ---
 
 ## Current Test
 
-number: 3
-name: Create a task from the project board
+number: 4
+name: Edit task basics in the drawer
 expected: |
-  Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
+  Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
 awaiting: user response
 
 ## Tests
@@ -33,7 +33,9 @@ severity: major
 
 ### 3. Create a task from the project board
 expected: Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions.
-result: [pending]
+result: issue
+reported: "创建任务会弹出表单，没有截止和起始时间的设置，点击创建任务没有反应"
+severity: major
 
 ### 4. Edit task basics in the drawer
 expected: Opening a task card shows the drawer with visible Chinese labels. Editing title, description, type, or priority saves through the API and refreshes both drawer/detail data and the board card where applicable.
@@ -63,8 +65,8 @@ result: pass
 
 total: 9
 passed: 3
-issues: 1
-pending: 5
+issues: 2
+pending: 4
 skipped: 0
 blocked: 0
 
@@ -75,6 +77,14 @@ blocked: 0
   reason: "User reported during retest: 1能看到 2 没有显示参与者是谁，截止日期没有显示，这应该是在创建任务的时候就该创建的内容 3 表单中这些是什么 4没有"
   severity: major
   test: 2
+  artifacts: []
+  missing: []
+
+- truth: "Creating a task from the board persists it through the API, adds it to the expected column, and opens or refreshes with the created task available for detail/drawer actions."
+  status: failed
+  reason: "User reported during retest: 创建任务会弹出表单，没有截止和起始时间的设置，点击创建任务没有反应"
+  severity: major
+  test: 3
   artifacts: []
   missing: []
 
