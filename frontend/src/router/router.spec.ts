@@ -39,7 +39,7 @@ describe("router guards", () => {
     expect(router.currentRoute.value.name).toBe("team-project-start");
   });
 
-  it("protects team member and project board deep links", async () => {
+  it("protects team, project, and board deep links", async () => {
     await router.push("/teams/123/members");
     expect(router.currentRoute.value.name).toBe("login");
 
@@ -51,6 +51,12 @@ describe("router guards", () => {
       is_active: true,
       created_at: "2026-05-17T00:00:00Z"
     });
+
+    await router.push("/teams/123");
+    expect(router.currentRoute.value.name).toBe("team-detail");
+
+    await router.push("/projects/123");
+    expect(router.currentRoute.value.name).toBe("project-detail");
 
     await router.push("/projects/123/board");
     expect(router.currentRoute.value.name).toBe("project-board");
